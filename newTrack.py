@@ -36,11 +36,15 @@ def method():
       # will assume this contour correspondes to the area
       # of object
       sorted_cnts = sorted(cnts, key = cv2.contourArea, reverse = True)
+      displayed_rectangles = 0
       for cnt in sorted_cnts:
         # compute the (rotated) bounding box around then
         # contour and then draw it
         rect = np.int32(cv2.cv.BoxPoints(cv2.minAreaRect(cnt)))
         cv2.drawContours(frame, [rect], -1, (0, 255, 0), 2)
+        displayed_rectangles = displayed_rectangles + 1
+        if displayed_rectangles >= 2:
+            break
                     
     # show the frame and the binary image
     cv2.imshow("Tracking", frame)
