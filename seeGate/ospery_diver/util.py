@@ -3,13 +3,11 @@ import cv2
 
 # openCV will only work with Numpy Arrays
 # the three item represented in HSV (Hue, Saturation, and Value) 
-ORANGE = { 'lower': np.array([5, 50, 110],np.uint8),  'upper': np.array([15, 255, 255],np.uint8) };
-
+#ORANGE = { 'lower': np.array([5, 50, 110],np.uint8),  'upper': np.array([15, 255, 255],np.uint8) };
+BLAZEORANGE = { 'lower': np.array([5, 50, 80],np.uint8),  'upper': np.array([50, 255, 110],np.uint8) };
 RED = (0,0,255)
 
 def detectColor(image, color):
-
-
     # find the colors within the specified boundaries and apply the mask
     mask = cv2.inRange(image, color['lower'], color['upper'])
 
