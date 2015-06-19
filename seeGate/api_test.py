@@ -12,7 +12,7 @@ if __name__ == '__main__':
 	while( True ):
 
 		frame = cam.getFrame()
-		
+
 		point = executor.run(tasks.gateDetector, frame, None)
 
 		if point is not None:
