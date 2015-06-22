@@ -12,20 +12,17 @@ if __name__ == '__main__':
 	while( True ):
 
 		frame = cam.getFrame()
-		
-		#point = executor.run(tasks.gateDetector, cam.getFrame())
 
+		point = executor.run(tasks.gateDetector, frame, None)
 
-		#if point is not None:
-
+		if point is not None:
 			#draw a cross hair
-		#	cv2.circle(frame, (point.getX() ,point.getY()), 40, (0,0,255), 5)
+			cv2.circle(frame, (point.getX() ,point.getY()), 40, (0,0,255), 5)
 
-		print frame
-		rects = executor.run(tasks.findBoundingRectsByColor, cam.getFrame(), ORANGE)
+ 		#rects = executor.run(tasks.findBoundingRectsByColor, frame, ORANGE)
 
-		for rect in rects:
-			display.drawContour(frame, rect, RED, 2)
+		#for rect in rects:
+		#	display.drawContour(frame, rect, RED, 2)
 
 		if (display.show(frame, "output")==-1):
 			break
