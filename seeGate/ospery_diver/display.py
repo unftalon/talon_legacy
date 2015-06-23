@@ -1,4 +1,4 @@
-import util
+from util import *
 
 class Display:
 
@@ -23,8 +23,11 @@ class Display:
 		self.cv2 = cv2
 		self.counter = 0
 
-	def drawCircle(self, image, x, y, radius, color, thickness):
-		self.cv2.circle(image, x, y, radius, color, thickness)
+	def drawCircle(self, image, point, radius, color=RED, thickness=5):
+		self.cv2.circle(image, point.toTuple(), radius, color, thickness)
 
 	def drawContour(self, image, rect, color, thickness):
 		self.cv2.drawContours(image, [rect], 0, color, thickness)
+
+	def putText(self, image, text, point, color=RED, font=cv2.FONT_HERSHEY_SIMPLEX, font_scale=0.5, font_thickness=2):
+		cv2.putText(image, text, point.toTuple(), font, font_scale, RED, font_thickness)
