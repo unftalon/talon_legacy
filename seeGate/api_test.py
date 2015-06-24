@@ -5,29 +5,38 @@ from ospery_diver.util import *
 
 if __name__ == '__main__':
 
-    cam = Camera(cv2)
-    display = Display(cv2)
-    executor = Executor(cv2, np)
+	cam = Camera(cv2)
+	display = Display(cv2)
+	executor = Executor(cv2, np)
+	# for video logging please donot erase!
+	fps = 13
+	size = cam.getFrameSize()
+	fwdCamFileName = 'fwdCamera.avi'
+        videoWriter = cam.getVideoSettings(fwdCamFileName,fps,size)
+	numFramesRemaining = 10 * fps - 1
+	while( True ):
 
-    img_num = 0
-    while( True ):
-        img_num += 1
-        frame = cam.getFrame()
-        if img_num % 10 == 0:
-            cv2.imwrite( "./image-"+str(img_num)+ ".jpg", frame );
-        point = executor.run(tasks.gateDetector, frame, None)
-
-        if point is not None:
-            #draw a cross hair
-            cv2.circle(frame, (point.getX() ,point.getY()), 40, (0,0,255), 5)
-
-         #rects = executor.run(tasks.findBoundingRectsByColor, frame, ORANGE)
+		frame = cam.getFrame()
+		
+		while numFramesRemaining > 0:
+			cam.recordFrame(frame, videoWriter)
+			frame = cam.getFrame()
+			numFramesRemaining -= 1
+		
+		#point = executor.run(tasks.gateDetector, cam.getFrame())
 
 
-        #for rect in rects:
-        #    display.drawContour(frame, rect, RED, 2)
+		#if point is not None:
 
-        if (display.show(frame, "output")==-1):
-            break
+			#draw a cross hair
+		#	cv2.circle(frame, (point.getX() ,point.getY()), 40, (0,0,255), 5)
 
-    display.destroy()
+		#rects = executor.run(tasks.findBoundingRectsByColor, cam.getFrame(), ORANGE)
+
+		#for rect in rects:
+			#display.drawContour(frame, rect, RED, 2)
+
+		if (display.show(frame, "output")==-1):
+			break
+
+	display.destroy()
