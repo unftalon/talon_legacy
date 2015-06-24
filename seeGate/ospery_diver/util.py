@@ -1,14 +1,30 @@
 import numpy as np
 import cv2
 import sys
+import Queue
+import threading
+
 
 # openCV will only work with Numpy Arrays
 # the three item represented in HSV (Hue, Saturation, and Value)
-#ORANGE = { 'lower': np.array([5, 50, 110],np.uint8),  'upper': np.array([15, 255, 255],np.uint8) };
+ORANGE = { 'lower': np.array([5, 50, 110],np.uint8),  'upper': np.array([15, 255, 255],np.uint8) };
 BLAZEORANGE = { 'lower': np.array([5, 50, 80],np.uint8),  'upper': np.array([50, 255, 110],np.uint8) };
 RED = (0,0,255)
 INREMENT_VALUE = 5
 
+
+KMEANS_FLAG = cv2.KMEANS_RANDOM_CENTERS
+
+KMEANS_CRITERIA = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+
+KMEANS_ATTEMPTS = 10
+
+def getCenter(points):
+    ret, labels, center = cv2.kmeans(points, 1, KMEANS_CRITERIA, KMEANS_ATTEMPTS, 0)
+    center = center[0]
+    return Point(int(center[0]), int(center[1]))
+    
+  
 def blazed_orange():
     return BLAZEORANGE
 
@@ -66,6 +82,13 @@ def findContours(image):
 
     return contours
 
+def distFromCenter(image, point):
+    height, width, channels = image.shape
+    center = Point(width/2-point.getX(), height/2-point.getX())
+    return center
+
+
+
 class Point:
 
     def __init__(self, x=0, y=0):
@@ -78,11 +101,46 @@ class Point:
     def getY(self):
     	return self.y
 
-def calibrate(queue):
+    def __add__(self, other):
+        return Point(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other):
+        return Point(self.x + other.x, self.y + other.y)
+
+    def __repr__(self):
+        return [self.x, self.y]
+
+    def __str__(self):
+        return "("+str(self.x)+","+str(self.y)+")"
+
+    def toTuple(self):
+        return (self.x, self.y)
+
+ 
+
+def colorCalibrate(color):
+
+    input_queue = Queue.Queue()
+    thread = threading.Thread(target=calibrate, args=(input_queue, color))
+    thread.daemon = True
+    thread.start()
+
+def calibrate(queue, color):
+
     while True:
+
         try:
             letter = sys.stdin.read(1)
             if letter != '\n':
                 queue.put(parse_letter(letter))
         except KeyError:
             print "Bad key!"
+
+        if not queue.empty():
+            direction, bound, channel = queue.get()
+            print "--"
+            print color
+            color[bound][channel] += (direction * INREMENT_VALUE)
+            print color
+
+
