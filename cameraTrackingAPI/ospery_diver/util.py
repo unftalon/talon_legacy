@@ -118,6 +118,14 @@ class Point:
 
 
 def colorCalibrate(color):
+    print "This is the color calibration program. Press (a,z,s,x,d,c,f,v,g,b)"
+    print "Keys: a,z,s,x,d,c are for the upperbound configuration"
+    print "top row is for raising the value"
+    print "bottom row is for lowering the value"
+    print "Keys: f,v,g,b,h,n are for the lower configuration"
+    print "top row is for raising the value"
+    print "bottom row is for lowering the value"
+
     input_queue = Queue.Queue()
     thread = threading.Thread(target=calibrate, args=(input_queue, color))
     thread.daemon = True

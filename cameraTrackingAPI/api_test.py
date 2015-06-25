@@ -12,6 +12,7 @@ executor = Executor(cv2, np)
 # fwdCamFileName = 'fwdCamera.avi'
 # videoWriter = cam.getVideoSettings(fwdCamFileName,fps,size)
 # numFramesRemaining = 10 * fps - 1
+colorCalibrate(all_colors())
 while( True ):
     frame = cam.getFrame()
 
