@@ -7,11 +7,16 @@ import threading
 
 # openCV will only work with Numpy Arrays
 # the three item represented in HSV (Hue, Saturation, and Value)
-ORANGE = { 'lower': np.array([5, 50, 110],np.uint8),  'upper': np.array([15, 255, 255],np.uint8) };
-BLAZEORANGE = { 'lower': np.array([5, 50, 80],np.uint8),  'upper': np.array([50, 255, 110],np.uint8) };
+ORANGE = { 'lower': np.array([0, 00, 00],np.uint8),  'upper': np.array([50, 255, 110],np.uint8) };
 RED = (0,0,255)
 INREMENT_VALUE = 5
+ALLCOLORS = { 'lower': np.array([0, 00, 00],np.uint8),  'upper': np.array([255, 255, 255],np.uint8) };
 
+def orange():
+    return ORANGE
+
+def all_colors():
+    return ALLCOLORS
 
 KMEANS_FLAG = cv2.KMEANS_RANDOM_CENTERS
 
@@ -23,10 +28,8 @@ def getCenter(points):
     ret, labels, center = cv2.kmeans(points, 1, KMEANS_CRITERIA, KMEANS_ATTEMPTS, 0)
     center = center[0]
     return Point(int(center[0]), int(center[1]))
-    
-  
-def blazed_orange():
-    return BLAZEORANGE
+
+
 
 def parse_letter(letter):
     return {
@@ -57,8 +60,6 @@ def detectColor(image, color):
     return output
 
 def findContours(image):
-
-
     # Frame capture need to be in gray scale in order to threshold image
     grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -87,8 +88,6 @@ def distFromCenter(image, point):
     center = Point(width/2-point.getX(), height/2-point.getX())
     return center
 
-
-
 class Point:
 
     def __init__(self, x=0, y=0):
@@ -116,19 +115,16 @@ class Point:
     def toTuple(self):
         return (self.x, self.y)
 
- 
+
 
 def colorCalibrate(color):
-
     input_queue = Queue.Queue()
     thread = threading.Thread(target=calibrate, args=(input_queue, color))
     thread.daemon = True
     thread.start()
 
 def calibrate(queue, color):
-
     while True:
-
         try:
             letter = sys.stdin.read(1)
             if letter != '\n':
