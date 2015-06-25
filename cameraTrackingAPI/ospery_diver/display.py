@@ -4,7 +4,6 @@ class Display:
 
     def show(self, image, label):
         self.cv2.imshow(label, image)
-
         # Waitkey will display image 1 ms until.
         # After 1 ms if a key is pressed the window will terminate (break loop)
         if self.cv2.waitKey(1) & 0xFF == ord('q'):
