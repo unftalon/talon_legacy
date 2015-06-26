@@ -3,9 +3,11 @@ from util import *
 from ospery_diver import Display
 from ospery_diver import PointTaskResult
 from ospery_diver import RectangeCollectionTaskResult
+from ospery_diver import UnsuccessfulTaskResult
 
 class GateDetectorTask:
     def __init__(self,cv2, np, image, color):
+        self.cv2 = cv2
         # The frame capture is in RGB (Red-Blue-Green)
         # It need to be in HSV (Hue Saturation and Value) in order for opencv to perform color detection
         hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -18,12 +20,8 @@ class GateDetectorTask:
         contours = findContours(detected)
 
         if len(contours) > 0:
-
             points = []
-
             for contour in contours:
-
-
                 moments = cv2.moments(contour)
 
                 if(moments['m00']):
@@ -39,11 +37,12 @@ class GateDetectorTask:
             term_crit = (cv2.TERM_CRITERIA_EPS, 40, 0.1)
 
             ret, labels, centers = cv2.kmeans(points, 1, term_crit, 40, 0)
-            self.cv2 = cv2
             self.coordinates = (int(centers[0,0]), int(centers[0,1]))
             self.detected = detected
 
     def result(self):
+        if(not hasattr(self, 'coordinates')):
+            return UnsuccessfulTaskResult(self.cv2)
         return PointTaskResult(self.cv2, self.coordinates)
 
     def getThresholdFrame(self):

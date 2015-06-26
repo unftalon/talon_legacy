@@ -20,3 +20,19 @@ class RectangeCollectionTaskResult:
     def drawOnFrame(self, frame):
         for rect in self.rectangles:
             self.cv2.drawContours(frame, [rect], 0, self.color, self.thickness)
+
+class UnsuccessfulTaskResult:
+    def __init__(self, foo=None):
+        return
+
+    def result():
+        print "unsuccessfull"
+        return UnsuccessfulResult()
+
+    def drawOnFrame(self, frame):
+        print "unsuccessful"
+        return
+
+class UnsuccessfulResult:
+    def __init__(self, foo=None):
+        return
