@@ -1,17 +1,30 @@
 from util import *
 
-class PointTaskResult:
+class TaskResult:
+    def __init__(self):
+        return
+		
+    def value(self):
+        return None
+		
+class PointTaskResult(TaskResult):
     def __init__(self, cv2, options):
+        TaskResult.__init__(self)
         self.xValue = int(options[0])
         self.yValue = int(options[1])
         self.options = options
         self.cv2 = cv2
+		
+    def value(self):
+        return Point(self.xValue, self.yValue)
 
     def drawOnFrame(self, frame):
         self.cv2.circle(frame, (self.xValue, self.yValue), 40, (0,0,255), 5)
 
-class RectangeCollectionTaskResult:
+class RectangeCollectionTaskResult(TaskResult):
+
     def __init__(self, cv2, options):
+        TaskResult.__init__(self)
         self.rectangles = options
         self.thickness = 5
         self.color = RED
@@ -21,9 +34,9 @@ class RectangeCollectionTaskResult:
         for rect in self.rectangles:
             self.cv2.drawContours(frame, [rect], 0, self.color, self.thickness)
 
-class UnsuccessfulTaskResult:
+class UnsuccessfulTaskResult(TaskResult):
     def __init__(self, foo=None):
-        return
+        TaskResult.__init__(self)
 
     def result():
         print "unsuccessfull"
