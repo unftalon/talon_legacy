@@ -7,7 +7,7 @@ import time
 cam = Camera(cv2)
 display = Display(cv2)
 executor = Executor(cv2, np)
-comm = Communicator('COM3', 9600)
+comm = Communicator('COM4', 9600)
 # for video logging please donot erase!
 # fps = 13
 # size = cam.getFrameSize()
@@ -15,6 +15,8 @@ comm = Communicator('COM3', 9600)
 # videoWriter = cam.getVideoSettings(fwdCamFileName,fps,size)
 # numFramesRemaining = 10 * fps - 1
 colorCalibrate(all_colors())
+
+comm.listen()
 while( True ):
 	frame = cam.getFrame()
 
@@ -28,8 +30,8 @@ while( True ):
 		comm.writePoint(center)
 		
 	
-	rectResult = executor.run(tasks.findBoundingRectsByColor, frame, orange())
-	rectResult.result().drawOnFrame(frame)
+	#rectResult = executor.run(tasks.findBoundingRectsByColor, frame, orange())
+	#rectResult.result().drawOnFrame(frame)
 	
     #display.show(rectResult.getThresholdFrame(), "rect_threshold")
 	
