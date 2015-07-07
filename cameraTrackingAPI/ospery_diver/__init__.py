@@ -6,4 +6,5 @@ from communicator import Communicator
 from taskresult import PointTaskResult
 from taskresult import RectangeCollectionTaskResult
 from taskresult import UnsuccessfulTaskResult
+from taskresult import BuoyTaskResult
 import tasks

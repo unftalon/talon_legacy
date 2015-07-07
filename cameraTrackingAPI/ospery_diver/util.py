@@ -24,12 +24,38 @@ KMEANS_CRITERIA = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 
 KMEANS_ATTEMPTS = 10
 
+# Minimum distance between the centers of the detected circles (in pixels)
+MIN_DIST = 60
+
+
 def getCenter(points):
     ret, labels, center = cv2.kmeans(points, 1, KMEANS_CRITERIA, KMEANS_ATTEMPTS, 0)
     center = center[0]
     return Point(int(center[0]), int(center[1]))
 
+	
+def findLargestAreaCircle(image, method=cv2.cv.CV_HOUGH_GRADIENT, dp=1.2, min_dist=MIN_DIST):
+	
+	# Convert image to gray scale
+	gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+	
+	circles = cv2.HoughCircles(gray, method, dp, min_dist)
 
+	if circles is not None:
+		
+		largestCircle = Circle()
+		
+		for (x, y, r) in circles[0]:
+		
+			if int(r) > largestCircle.getRadius():
+				
+				largestCircle = Circle(x, y, r)
+		
+		return largestCircle
+	
+	else:
+		
+		return None
 
 def parse_letter(letter):
     return {
@@ -114,8 +140,22 @@ class Point:
 
     def toTuple(self):
         return (self.x, self.y)
+		
+class Circle:
 
-
+	def __init__(self, x=0, y=0, radius=0):
+		self.radius = radius
+		self.point = Point(x,y)
+	
+	def getRadius(self):
+		return self.radius
+	
+	def getPoint(self):
+		return self.point
+		
+	def toArray(self):
+		return [self.point.getX(), self.point.getY(), self.radius]
+	
 
 def colorCalibrate(color):
     print "This is the color calibration program. Press (a,z,s,x,d,c,f,v,g,b)"

@@ -7,7 +7,6 @@ import time
 cam = Camera(cv2)
 display = Display(cv2)
 executor = Executor(cv2, np)
-comm = Communicator('COM3', 9600)
 # for video logging please donot erase!
 # fps = 13
 # size = cam.getFrameSize()
@@ -16,24 +15,21 @@ comm = Communicator('COM3', 9600)
 # numFramesRemaining = 10 * fps - 1
 colorCalibrate(all_colors())
 
-comm.listen()
 while( True ):
+
 	frame = cam.getFrame()
 
-	pointTask = executor.run(tasks.gateDetector, frame, orange())
+	buoyTask = executor.run(tasks.buoyDetector, frame, orange())
 	
-	pointResult = pointTask.result()
-	pointResult.drawOnFrame(frame)
+	buoyResult = buoyTask.result()
+	buoyResult.drawOnFrame(frame)
 	
-	if pointResult.value() is not None:
-		center = pointResult.value()
-		comm.writePoint(center)
-		
+	display.show(buoyTask.getThresholdFrame(), "buoy_threshold")
 	
 	#rectResult = executor.run(tasks.findBoundingRectsByColor, frame, orange())
 	#rectResult.result().drawOnFrame(frame)
 	
-	display.show(pointTask.getThresholdFrame(), "rect_threshold")
+    
 	
 	
 

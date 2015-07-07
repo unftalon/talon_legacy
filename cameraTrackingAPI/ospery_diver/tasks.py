@@ -4,6 +4,7 @@ from ospery_diver import Display
 from ospery_diver import PointTaskResult
 from ospery_diver import RectangeCollectionTaskResult
 from ospery_diver import UnsuccessfulTaskResult
+from ospery_diver import BuoyTaskResult
 
 class GateDetectorTask:
     def __init__(self,cv2, np, image, color):
@@ -14,10 +15,10 @@ class GateDetectorTask:
 
 
         # Return the image with just the detected color
-        detected = detectColor(hsv_img, color)
+        self.detected = detectColor(hsv_img, color)
 
         # Find the contours
-        contours = findContours(detected)
+        contours = findContours(self.detected)
 
         if len(contours) > 0:
             points = []
@@ -38,7 +39,7 @@ class GateDetectorTask:
 
             ret, labels, centers = cv2.kmeans(points, 1, term_crit, 40, 0)
             self.coordinates = (int(centers[0,0]), int(centers[0,1]))
-            self.detected = detected
+           
 
     def result(self):
         if(not hasattr(self, 'coordinates')):
@@ -81,9 +82,34 @@ class FindBoundingRectsByColorTask:
 
     def getThresholdFrame(self):
         return self.detected
+		
+class BuoyDetectorTask:
+    def __init__(self,cv2, np, image, color):
+		self.cv2 = cv2
+        # The frame capture is in RGB (Red-Blue-Green)
+        # It need to be in HSV (Hue Saturation and Value) in order for opencv to perform color detection
+		hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+
+        # Return the image with just the detected color
+		self.detected = detectColor(hsv_img, color)
+				
+		self.circle = findLargestAreaCircle(self.detected)
+		
+		
+    def result(self):
+        if(self.circle is None):
+            return UnsuccessfulTaskResult(self.cv2)
+        return BuoyTaskResult(self.cv2, self.circle.toArray())
+
+    def getThresholdFrame(self):
+        return self.detected
 
 def gateDetector(cv2, np, image, color):
     return GateDetectorTask(cv2, np, image, color)
 
 def findBoundingRectsByColor(cv2, np, image, color):
     return FindBoundingRectsByColorTask(cv2, np, image, color)
+	
+def buoyDetector(cv2, np, image, color):
+    return BuoyDetectorTask(cv2, np, image, color)
