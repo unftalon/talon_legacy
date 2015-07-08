@@ -84,7 +84,7 @@ class FindBoundingRectsByColorTask:
         return self.detected
 		
 class BuoyDetectorTask:
-    def __init__(self,cv2, np, image, color):
+    def __init__(self, cv2, np, image, color):
 		self.cv2 = cv2
         # The frame capture is in RGB (Red-Blue-Green)
         # It need to be in HSV (Hue Saturation and Value) in order for opencv to perform color detection
@@ -113,3 +113,8 @@ def findBoundingRectsByColor(cv2, np, image, color):
 	
 def buoyDetector(cv2, np, image, color):
     return BuoyDetectorTask(cv2, np, image, color)
+
+TASKS = [gateDetector, buoyDetector]
+def getTaskByNum(task_num):
+	return TASKS[task_num]
+

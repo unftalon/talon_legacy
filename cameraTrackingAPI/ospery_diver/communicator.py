@@ -5,14 +5,19 @@ import time
 class Communicator:
 
 	def __init__(self, interface='/dev/ttyACM0', baud_rate=9600):
-		self.communication = serial.Serial(interface, baud_rate, timeout=0)
-		self.jobNumber = 0
+		self.communication = serial.Serial(interface, baud_rate, timeout=0)		
 
 	def writePoint(self, point):
 	
-		send = json.dumps({"job_number":self.jobNumber,"object_type": "point", "success": 0, "x":point.getX(), "y":point.getY()})
+		send = json.dumps({"object_type": "point", "success": 0, "x":point.getX(), "y":point.getY()})
 		self.communication.write(send)
 		time.sleep(2)
+
+		
+	def sendSuccess(self):
+	
+		self.communication.write("1")
+		time.sleep(1)
 		
 	def listen(self):
 	
@@ -26,6 +31,22 @@ class Communicator:
 			
 			line = self.communication.readline()
 			print line
-		
 			time.sleep(1)
+			
+	def	standBy(self):
+
+		while True:
+			
+			time.sleep(1)
+			line = self.communication.readline()
+			
+			if not line:
+				continue
+			else:
+				
+				task_num = int(line)
+				return task_num
+			
+				
+			
 			

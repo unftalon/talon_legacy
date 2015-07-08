@@ -7,6 +7,9 @@ class TaskResult:
     def value(self):
         return None
 		
+    def arrayValue(self):
+        return None
+		
 class PointTaskResult(TaskResult):
 	def __init__(self, cv2, options):
 		TaskResult.__init__(self)
@@ -17,6 +20,9 @@ class PointTaskResult(TaskResult):
 		
 	def value(self):
 		return Point(self.xValue, self.yValue)
+		
+	def arrayValue(self):
+		return [self.xValue, self.yValue]
 
 	def drawOnFrame(self, frame):
 		self.cv2.circle(frame, (self.xValue, self.yValue), 40, (0,0,255), 5)
@@ -32,6 +38,9 @@ class BuoyTaskResult(TaskResult):
 		
 	def value(self):
 		return Circle(self.xValue, self.yValue, self.radius)
+		
+	def arrayValue(self):
+		return [self.xValue, self.yValue, self.radius]
 
 	def drawOnFrame(self, frame):
 		self.cv2.circle(frame, (self.xValue, self.yValue), self.radius, (0,0,255), 5)

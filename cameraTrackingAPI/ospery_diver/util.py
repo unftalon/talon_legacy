@@ -28,6 +28,8 @@ KMEANS_ATTEMPTS = 10
 MIN_DIST = 60
 
 
+
+
 def getCenter(points):
     ret, labels, center = cv2.kmeans(points, 1, KMEANS_CRITERIA, KMEANS_ATTEMPTS, 0)
     center = center[0]
@@ -146,12 +148,21 @@ class Circle:
 	def __init__(self, x=0, y=0, radius=0):
 		self.radius = radius
 		self.point = Point(x,y)
+		
+	def getX(self):
+		return self.point.getX()
+
+	def getY(self):
+		return self.point.getY()
 	
 	def getRadius(self):
 		return self.radius
 	
 	def getPoint(self):
 		return self.point
+	
+	def __repr__(self):
+		return [self.x, self.y, self.radius]
 		
 	def toArray(self):
 		return [self.point.getX(), self.point.getY(), self.radius]
