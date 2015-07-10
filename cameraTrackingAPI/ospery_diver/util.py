@@ -28,7 +28,7 @@ KMEANS_CRITERIA = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 KMEANS_ATTEMPTS = 10
 
 # Minimum distance between the centers of the detected circles (in pixels)
-MIN_DIST = 30
+MIN_DIST = 1
 
 MARGIN_FROM_CENTER = 150
 
@@ -46,11 +46,12 @@ def isCentered(x, y, frame, margin=MARGIN_FROM_CENTER):
 		return False
 
 	
-def findLargestAreaCircle(image, method=cv2.cv.CV_HOUGH_GRADIENT, dp=1.2, min_dist=MIN_DIST):
+def findLargestAreaCircle(image, method=cv2.cv.CV_HOUGH_GRADIENT, dp=20, min_dist=MIN_DIST):
 	
 
 	
-	circles = cv2.HoughCircles(image, method, dp, min_dist)
+	circles = cv2.HoughCircles(image, cv2.cv.CV_HOUGH_GRADIENT, min_dist, 20, param1=40, param2=20, minRadius=30, maxRadius=0)
+			  
 
 	if circles is not None:
 		

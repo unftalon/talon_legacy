@@ -9,7 +9,6 @@ from ospery_diver import BuoyTaskResult
 class GateDetectorTask:
     def __init__(self,cv2, np, image, color):
         self.cv2 = cv2
-		
         # The frame capture is in RGB (Red-Blue-Green)
         # It need to be in HSV (Hue Saturation and Value) in order for opencv to perform color detection
         hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -88,11 +87,10 @@ class BuoyDetectorTask:
     def __init__(self, cv2, np, image, color):
 		self.cv2 = cv2
 		
-		gaussian_blur = cv2.GaussianBlur(image,(3,3),0)
-		
+		gaussian_blur = cv2.GaussianBlur(image,(5,5),0)
         # The frame capture is in RGB (Red-Blue-Green)
         # It need to be in HSV (Hue Saturation and Value) in order for opencv to perform color detection
-		hsv_img = cv2.cvtColor(gaussian_blur, cv2.COLOR_BGR2HSV)
+		hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
 
         # Return the image with just the detected color
