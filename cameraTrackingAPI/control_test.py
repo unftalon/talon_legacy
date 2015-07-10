@@ -14,50 +14,48 @@ comm = Communicator('COM4', 9600)
 # fwdCamFileName = 'fwdCamera.avi'
 # videoWriter = cam.getVideoSettings(fwdCamFileName,fps,size)
 # numFramesRemaining = 10 * fps - 1
-colorCalibrate(all_colors())
+#colorCalibrate(all_colors())
 
-MARGIN_FROM_CENTER = 150
+
 task_name=""
 
-def idlePhase():
 
-	task_num = comm.standBy()
-	task = tasks.getTaskByNum(task_num)
+
+def idlePhase():
+	
+	task_num = comm.standBy() 			# Awaiting orders from the arduino. 
+	task = tasks.TASKS[task_num]	  	# A single number will represent an index of task in the TASKS array
 	task_name = task.__name__
-	runTask(task)
+	print task_name
+	runTask(task)			 			# run the task
 	
 def runTask(task):
 	
 	while True:
-	
-		frame = cam.getFrame()
+				
+		executed = executor.run(task, cam.getFrame(), ORANGE)
+		result = executed.result()
+		thresholdedFrame = executed.getThresholdFrame()
 		
 	
+		if (display.show(thresholdedFrame, "thresholded")==-1):
+			break
+		
+		
+		frame = cam.getFrame()
+		result.drawOnFrame(frame)
+		display.putText(frame, task_name, Point(0, 0))	# Display name of current task being perform
+		
 		if (display.show(frame, "output")==-1):
 			break
 			
-		executed = executor.run(task, cam.getFrame(), all_colors())
-		result = executed.result()
-		result.drawOnFrame(frame)
-		thresholdedFrame = executed.getThresholdFrame()
-		
-		if thresholdedFrame is not None:
-			if (display.show(thresholdedFrame, "thresholded")==-1):
-				break
-		
 		value = result.arrayValue()
-		print value
 		if value is not None:
-			if isCentered(value[0], value[1]):
+			
+			# A success in this case will be how far the detected object is away from the center/orgin Point(0,0)
+			if isCentered(value[0], value[1], frame, 100):	
 				comm.sendSuccess()
 				idlePhase()
-				
-def isCentered(x, y):
-	point = distFromCenter(cam.getFrame(),Point(x,y))
-	if abs(point.getX()) <= MARGIN_FROM_CENTER and abs(point.getY()) <= MARGIN_FROM_CENTER:
-		return True
-	else:
-		return False
 
 idlePhase()
 	

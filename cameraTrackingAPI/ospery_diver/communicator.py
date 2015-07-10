@@ -11,13 +11,13 @@ class Communicator:
 	
 		send = json.dumps({"object_type": "point", "success": 0, "x":point.getX(), "y":point.getY()})
 		self.communication.write(send)
-		time.sleep(2)
+		time.sleep(0.5)
 
 		
 	def sendSuccess(self):
 	
 		self.communication.write("1")
-		time.sleep(1)
+		time.sleep(0.5)
 		
 	def listen(self):
 	

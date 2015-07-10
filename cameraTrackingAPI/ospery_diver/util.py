@@ -7,7 +7,10 @@ import threading
 
 # openCV will only work with Numpy Arrays
 # the three item represented in HSV (Hue, Saturation, and Value)
-ORANGE = { 'lower': np.array([0, 00, 00],np.uint8),  'upper': np.array([50, 255, 110],np.uint8) };
+ORANGE = { 'lower': np.array([5, 100, 100],np.uint8),  'upper': np.array([15, 230, 255],np.uint8) };
+BLUE = { 'lower': np.array([100, 125, 30],np.uint8),  'upper': np.array([170, 240, 230],np.uint8) };
+GREEN = { 'lower': np.array([60, 80, 30],np.uint8),  'upper': np.array([90, 240, 215],np.uint8) };
+YELLOW = { 'lower': np.array([25, 155, 100],np.uint8),  'upper': np.array([45, 240, 200],np.uint8) };
 RED = (0,0,255)
 INREMENT_VALUE = 5
 ALLCOLORS = { 'lower': np.array([0, 00, 00],np.uint8),  'upper': np.array([255, 255, 255],np.uint8) };
@@ -25,23 +28,29 @@ KMEANS_CRITERIA = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
 KMEANS_ATTEMPTS = 10
 
 # Minimum distance between the centers of the detected circles (in pixels)
-MIN_DIST = 60
+MIN_DIST = 30
 
-
+MARGIN_FROM_CENTER = 150
 
 
 def getCenter(points):
     ret, labels, center = cv2.kmeans(points, 1, KMEANS_CRITERIA, KMEANS_ATTEMPTS, 0)
     center = center[0]
     return Point(int(center[0]), int(center[1]))
+	
+def isCentered(x, y, frame, margin=MARGIN_FROM_CENTER):
+	point = distFromCenter(frame ,Point(x,y))
+	if abs(point.getX()) <= margin and abs(point.getY()) <= margin:
+		return True
+	else:
+		return False
 
 	
 def findLargestAreaCircle(image, method=cv2.cv.CV_HOUGH_GRADIENT, dp=1.2, min_dist=MIN_DIST):
 	
-	# Convert image to gray scale
-	gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
 	
-	circles = cv2.HoughCircles(gray, method, dp, min_dist)
+	circles = cv2.HoughCircles(image, method, dp, min_dist)
 
 	if circles is not None:
 		
