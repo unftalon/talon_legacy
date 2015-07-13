@@ -35,33 +35,30 @@ MARGIN_FROM_CENTER = 150
 
 def getCenter(points):
     ret, labels, center = cv2.kmeans(points, 1, KMEANS_CRITERIA, KMEANS_ATTEMPTS, 0)
-    center = center[0]
-    return Point(int(center[0]), int(center[1]))
+    return center[0]
+    
 	
 def isCentered(x, y, frame, margin=MARGIN_FROM_CENTER):
-	point = distFromCenter(frame ,Point(x,y))
-	if abs(point.getX()) <= margin and abs(point.getY()) <= margin:
+	point = distFromCenter(frame, x, y)
+	if abs(point[0]) <= margin and abs(point[1]) <= margin:
 		return True
 	else:
 		return False
 
 	
 def findLargestAreaCircle(image, method=cv2.cv.CV_HOUGH_GRADIENT, dp=20, min_dist=MIN_DIST):
-	
-
-	
+		
 	circles = cv2.HoughCircles(image, cv2.cv.CV_HOUGH_GRADIENT, min_dist, 20, param1=40, param2=20, minRadius=30, maxRadius=0)
 			  
-
 	if circles is not None:
 		
-		largestCircle = Circle()
+		largestCircle = (0,0,0)
 		
 		for (x, y, r) in circles[0]:
 		
-			if int(r) > largestCircle.getRadius():
+			if int(r) > largestCircle[2]:
 				
-				largestCircle = Circle(x, y, r)
+				largestCircle = (x, y, r)
 		
 		return largestCircle
 	
@@ -121,62 +118,11 @@ def findContours(image):
 
     return contours
 
-def distFromCenter(image, point):
+def distFromCenter(image, x, y):
     height, width, channels = image.shape
-    center = Point(width/2-point.getX(), height/2-point.getX())
+    center = [width/2-x, height/2-y]
     return center
 
-class Point:
-
-    def __init__(self, x=0, y=0):
-        self.x = x
-        self.y = y
-
-    def getX(self):
-        return self.x
-
-    def getY(self):
-        return self.y
-
-    def __add__(self, other):
-        return Point(self.x + other.x, self.y + other.y)
-
-    def __sub__(self, other):
-        return Point(self.x + other.x, self.y + other.y)
-
-    def __repr__(self):
-        return [self.x, self.y]
-
-    def __str__(self):
-        return "("+str(self.x)+","+str(self.y)+")"
-
-    def toTuple(self):
-        return (self.x, self.y)
-		
-class Circle:
-
-	def __init__(self, x=0, y=0, radius=0):
-		self.radius = radius
-		self.point = Point(x,y)
-		
-	def getX(self):
-		return self.point.getX()
-
-	def getY(self):
-		return self.point.getY()
-	
-	def getRadius(self):
-		return self.radius
-	
-	def getPoint(self):
-		return self.point
-	
-	def __repr__(self):
-		return [self.x, self.y, self.radius]
-		
-	def toArray(self):
-		return [self.point.getX(), self.point.getY(), self.radius]
-	
 
 def colorCalibrate(color):
     print "This is the color calibration program. Press (a,z,s,x,d,c,f,v,g,b)"

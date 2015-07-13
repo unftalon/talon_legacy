@@ -2,42 +2,26 @@ from util import *
 import serial, json
 import time
 
-class Communicator:
 
+class Communicator:
+	
 	def __init__(self, interface='/dev/ttyACM0', baud_rate=9600):
 		self.communication = serial.Serial(interface, baud_rate, timeout=0)		
+		self.DELAY = 2
 
 	def writePoint(self, point):
 	
-		send = json.dumps({"object_type": "point", "success": 0, "x":point.getX(), "y":point.getY()})
-		self.communication.write(send)
-		time.sleep(0.5)
-
-		
-	def sendSuccess(self):
 	
-		self.communication.write("1")
-		time.sleep(0.5)
+		self.communication.write("0")
+		time.sleep(self.DELAY)
+		self.communication.write(str(point[1]))
+		time.sleep(self.DELAY)
 		
-	def listen(self):
-	
-		thread = threading.Thread(target=self.read)
-		thread.daemon = True
-		thread.start()
-		
-	def read(self):
-
-		while True:
-			
-			line = self.communication.readline()
-			print line
-			time.sleep(1)
-			
 	def	standBy(self):
 
 		while True:
 			
-			time.sleep(1)
+			time.sleep(self.DELAY)
 			line = self.communication.readline()
 			
 			if not line:

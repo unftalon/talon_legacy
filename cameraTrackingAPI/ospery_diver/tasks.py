@@ -73,6 +73,7 @@ class FindBoundingRectsByColorTask:
             box = cv2.cv.BoxPoints(rect)
             box = np.int0(box)
             rects.append(box)
+			
         self.rects = rects
         self.cv2 = cv2
         self.detected = detected
@@ -87,7 +88,6 @@ class BuoyDetectorTask:
     def __init__(self, cv2, np, image, color):
 		self.cv2 = cv2
 		
-		gaussian_blur = cv2.GaussianBlur(image,(5,5),0)
         # The frame capture is in RGB (Red-Blue-Green)
         # It need to be in HSV (Hue Saturation and Value) in order for opencv to perform color detection
 		hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -105,7 +105,7 @@ class BuoyDetectorTask:
     def result(self):
         if(self.circle is None):
             return UnsuccessfulTaskResult(self.cv2)
-        return BuoyTaskResult(self.cv2, self.circle.toArray())
+        return BuoyTaskResult(self.cv2, self.circle)
 
     def getThresholdFrame(self):
         return self.detected
@@ -120,5 +120,3 @@ def buoyDetector(cv2, np, image, color):
     return BuoyDetectorTask(cv2, np, image, color)
 
 TASKS = [gateDetector, buoyDetector]
-
-

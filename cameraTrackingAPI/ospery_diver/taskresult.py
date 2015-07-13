@@ -19,11 +19,8 @@ class PointTaskResult(TaskResult):
 		self.cv2 = cv2
 		
 	def value(self):
-		return Point(self.xValue, self.yValue)
-		
-	def arrayValue(self):
 		return [self.xValue, self.yValue]
-
+		
 	def drawOnFrame(self, frame):
 		self.cv2.circle(frame, (self.xValue, self.yValue), 40, (0,0,255), 5)
 		
@@ -37,11 +34,8 @@ class BuoyTaskResult(TaskResult):
 		self.cv2 = cv2
 		
 	def value(self):
-		return Circle(self.xValue, self.yValue, self.radius)
-		
-	def arrayValue(self):
 		return [self.xValue, self.yValue, self.radius]
-
+	
 	def drawOnFrame(self, frame):
 		self.cv2.circle(frame, (self.xValue, self.yValue), self.radius, (0,0,255), 5)
 

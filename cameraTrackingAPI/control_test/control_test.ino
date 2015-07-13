@@ -1,3 +1,5 @@
+#include <ArduinoJson.h>
+
 bool waiting = false; // waiting for pi to return a success a '1'
 int taskNum = 0;      // current task number
 int ledPin = 13;      // internal orange LED located on the arduino
@@ -17,18 +19,30 @@ void loop(){
     Serial.println(taskNum, DEC);     // send task number to pi
     waiting = true;                   // now wait for success from pi
   }
-  
-  if (Serial.parseInt() == 1) {       // 1 represents success
-    waiting = false;                
-    blink();                          // represent success by blinking 3 times
-    performAction();                  // have arduino peform certain action. Just a delay for now
-    taskNum = (taskNum+1)%taskAmount; // go to next task. If you taskNum goes beyond taskAmount reset to 0
+
+
+   
+  if (Serial.available()) {
+
+    int x = Serial.parseInt();
+    int y = Serial.parseInt();
+
+    if(x==0 && y==0) {
+        waiting = false;
+        blink(3);
+        taskNum = (taskNum+1)%taskAmount;
+        
+    } else {
+        Serial.println(x, DEC);
+        Serial.println(y, DEC);
+    }
+    
   }
 }
 
-void blink(){
+void blink(int amount){
   
-  for(int i=0; i<3; i++) {
+  for(int i=0; i<amount; i++) {
     digitalWrite(ledPin, HIGH);   
     delay(1000);                  
     digitalWrite(ledPin, LOW);    
@@ -36,11 +50,6 @@ void blink(){
   }              
 }
 
-void performAction() {
-
-    // do something useful
-    delay(5000);
-}
 
 
   
