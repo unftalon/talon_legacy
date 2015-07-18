@@ -100,3 +100,23 @@ void runThroughRange(Servo myservo) {
 int[] getCurrentGroup(int group) {
   return group == 1 ? thrusterGroup1 : thrusterGroup2;
 }
+
+int setSerial3Buffer() {
+  // FYI:
+  // We can't replace this with serialPort.readString();
+  // As much as I would like to...
+  if(Serial3.available()) {
+    int c; // a single character
+    int i = 0;
+    for(i = 0; i < 100; i++) {
+      c = Serial3.read();
+      if (c != '\n' && c != -1) {
+        // This delay needs to be here or else garbage enters the buffer
+        delay(2);
+        buffer[i] = c;
+      } else {
+        buffer[i] = '\0';
+      }
+    }
+  }
+}
