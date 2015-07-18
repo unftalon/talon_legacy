@@ -6,9 +6,11 @@ Servo servo12;
 
 int run = 1;
 
-Servo thrusterGroup1[] = { servo9, servo10 }; // groups of 2 pins
+Servo thrusterGroup1[] = { servo9, servo10 }; // groups of 2 Servos
 Servo thrusterGroup2[] = { servo11, servo12 };
 Servo allThrusters[] = { servo9, servo10, servo11, servo12 };
+
+int thrusterStop = 1060;
 
 int commands = {
   0, // thruster pause
@@ -26,7 +28,6 @@ void setup() {
   setupServo(servo10, 10);
   setupServo(servo11, 11);
   setupServo(servo12, 12);
-  setupServo(servo10, 10);
 }
 
 void setupServo(Servo servo, int pin) {
@@ -79,12 +80,12 @@ void commandGroup(int theGroup, int value1, int value2) {
 void pauseThrusters() {
   // stop all thrusters!
   for(int i = 0; i < allThrusters.length(); i++) {
-    allThrusters[i].writeMicroseconds(1500);
+    allThrusters[i].writeMicroseconds(thrusterStop);
    }
    currentCommand = 0;
 }
 
-void runThroughRange() {
+void runThroughRange(Servo myservo) {
   int pos = 0;
   for(pos = 1500; pos < 1900; pos += 1) {
     myservo.writeMicroseconds(pos);
