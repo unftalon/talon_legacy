@@ -1,10 +1,9 @@
 #include <Servo.h>
+
 Servo servo9;
 Servo servo10;
 Servo servo11;
 Servo servo12;
-
-int run = 1;
 
 Servo thrusterGroup1[] = { servo9, servo10 }; // groups of 2 Servos
 Servo thrusterGroup2[] = { servo11, servo12 };
@@ -13,15 +12,26 @@ Servo allThrusters[] = { servo9, servo10, servo11, servo12 };
 int thrusterStop = 1060;
 
 int commands = {
-  0, // thruster pause
+  0, // pause thrusters
   1, // thruster forward
   2, // thruster back
   3, // left forward, right backward
-  4  // left backward, right forward
+  4, // left backward, right forward
+
+  5, // increment forwardValue
+  6, // decrement forwardValue
+  7, // increment backwardValue
+  8  // decrement backwardValue
 }
 
 int currentGroup = 0; // currently active group
 int currentCommand = 0;
+int forwardValue = 1500;
+int backwardValue = 1500;
+
+
+// we will interactively add or subtract to forward, backward values
+int incrementOrDecrementValue = 20;
 
 void setup() {
   setupServo(servo9,   9);
@@ -34,7 +44,7 @@ void setupServo(Servo servo, int pin) {
   // attach to pin, with small delay and send init status
   servo.attach(pin);
   delay(2);
-  servo.writeMicroseconds(500); // init servo command (needs to be a value less than 1000);
+  servo.writeMicroseconds(500); // init for ESC.
 }
 
 void loop() {
@@ -52,17 +62,35 @@ void loop() {
 
 void groupControl(currentGroup, currentCommand) {
     swtich(currentCommand) {
-    case 1:
+    // thruster directions
+    case commands[0]:
+      pauseThrusters();
+      break;
+    case commands[1]:
       commandGroup(currentGroup, forwardValue, forwardValue);
       break;
-    case 2:
+    case commands[2]:
       commandGroup(currentGroup, backwardValue, backwardValue);
       break;
-    case 3:
+    case commands[3]:
       commandGroup(currentGroup, forwardValue, backwardValue);
       break;
-    case 4:
+    case commands[4]:
       commandGroup(currentGroup, backwardValue, forwardValue);
+      break;
+
+    // change thruster speed
+    case commands[5]:
+      forwardValue += incrementOrDecrementValue;
+      break;
+    case commands[6]:
+      forwardValue -= incrementOrDecrementValue;
+      break;
+    case commands[7]:
+      backwardValue += incrementOrDecrementValue;
+      break;
+    case commands[8]:
+      backwardValue += incrementOrDecrementValue;
       break;
     default:
       pauseThrusters();
