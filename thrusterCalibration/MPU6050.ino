@@ -1,45 +1,6 @@
 // I2C device class (I2Cdev) demonstration Arduino sketch for MPU6050 class using DMP (MotionApps v2.0)
 // 6/21/2012 by Jeff Rowberg <jeff@rowberg.net>
 // Updates should (hopefully) always be available at https://github.com/jrowberg/i2cdevlib
-//
-// Changelog:
-//      2013-05-08 - added seamless Fastwire support
-//                 - added note about gyro calibration
-//      2012-06-21 - added note about Arduino 1.0.1 + Leonardo compatibility error
-//      2012-06-20 - improved FIFO overflow handling and simplified read process
-//      2012-06-19 - completely rearranged DMP initialization code and simplification
-//      2012-06-13 - pull gyro and accel data from FIFO packet instead of reading directly
-//      2012-06-09 - fix broken FIFO read sequence and change interrupt detection to RISING
-//      2012-06-05 - add gravity-compensated initial reference frame acceleration output
-//                 - add 3D math helper file to DMP6 example sketch
-//                 - add Euler output and Yaw/Pitch/Roll output formats
-//      2012-06-04 - remove accel offset clearing for better results (thanks Sungon Lee)
-//      2012-06-01 - fixed gyro sensitivity to be 2000 deg/sec instead of 250
-//      2012-05-30 - basic DMP initialization working
-
-/* ============================================
- I2Cdev device library code is placed under the MIT license
- Copyright (c) 2012 Jeff Rowberg
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
- ===============================================
- */
 
 // I2Cdev and MPU6050 must be installed as libraries, or else the .cpp/.h files
 // for both classes must be in the include path of your project
@@ -67,17 +28,6 @@ MPU6050 mpu;
  depends on the MPU-6050's INT pin being connected to the Arduino's
  external interrupt #0 pin. On the Arduino Uno and Mega 2560, this is
  digital I/O pin 2.
- * ========================================================================= */
-
-/* =========================================================================
- NOTE: Arduino v1.0.1 with the Leonardo board generates a compile error
- when using Serial.write(buf, len). The Teapot output uses this method.
- The solution requires a modification to the Arduino USBAPI.h file, which
- is fortunately simple, but annoying. This will be fixed in the next IDE
- release. For more info, see these links:
-
- http://arduino.cc/forum/index.php/topic,109987.0.html
- http://code.google.com/p/arduino/issues/detail?id=958
  * ========================================================================= */
 
 // uncomment "OUTPUT_READABLE_QUATERNION" if you want to see the actual
@@ -126,7 +76,7 @@ uint16_t fifoCount;     // count of all bytes currently in FIFO
 uint8_t fifoBuffer[64]; // FIFO storage buffer
 
 // orientation/motion vars
-Quaternion q;           // [w, x, y, z]         quaternion container
+Quaternion quaternion;           // [w, x, y, z]         quaternion container
 VectorInt16 gyro;       //gyro sensor measurements
 VectorInt16 aa;         // [x, y, z]            accel sensor measurements
 VectorInt16 aaReal; // [x, y, z]            gravity-free accel sensor measurements
@@ -167,27 +117,12 @@ Servo servoBV;
 
 void setup() {
 
-  servoLeft.attach(servoPin2);
-  servoRight.attach(servoPin3);
-  servoFH.attach(servoPin4);
-  servoBH.attach(servoPin5);
-  servoFV.attach(servoPin6);
-  servoBV.attach(servoPin7);
-  servoLeft.writeMicroseconds(500); // send "stop" signal to ESC.
-  servoRight.writeMicroseconds(500); // send "stop" signal to ESC.
-  servoFH.writeMicroseconds(500); // send "stop" signal to ESC.
-  servoBH.writeMicroseconds(500); // send "stop" signal to ESC.
-  servoFV.writeMicroseconds(500); // send "stop" signal to ESC.
-  servoBV.writeMicroseconds(500); // send "stop" signal to ESC.
-  delay(1000); // delay to allow the ESC to recognize the stopped signal
-
-  servoLeft.writeMicroseconds(1500); // send "stop" signal to ESC.
-  servoRight.writeMicroseconds(1500); // send "stop" signal to ESC.
-  servoFH.writeMicroseconds(1500); // send "stop" signal to ESC.
-  servoBH.writeMicroseconds(1500); // send "stop" signal to ESC.
-  servoFV.writeMicroseconds(1500); // send "stop" signal to ESC.
-  servoBV.writeMicroseconds(1500); // send "stop" signal to ESC.
-  delay(1000); // delay to allow the ESC to recognize the stopped signal
+  servoSetup(servoLeft., servoPin2);
+  servoSetup(servoRight, servoPin3);
+  servoSetup(servoFH, servoPin4);
+  servoSetup(servoBH, servoPin5);
+  servoSetup(servoFV, servoPin6);
+  servoSetup(servoBV, servoPin7);
 
   // join I2C bus (I2Cdev library doesn't do this automatically)
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
@@ -333,18 +268,18 @@ void loop() {
 
 #ifdef OUTPUT_READABLE_QUATERNION
     // display quaternion values in easy matrix form: w x y z
-    mpu.dmpGetQuaternion(&q, fifoBuffer);//In MPU6050_6axismotionapps20.h on line 619 and mpu6050.h on line 827
+    mpu.dmpGetQuaternion(&quaternion, fifoBuffer);//In MPU6050_6axismotionapps20.h on line 619 and mpu6050.h on line 827
     Serial.print("quat\t");
-    Serial.print(q.w);
+    Serial.print(quaternion.w);
     Serial.print("\t");
-    Serial.print(q.x);
+    Serial.print(quaternion.x);
     Serial.print("\t");
-    Serial.print(q.y);
+    Serial.print(quaternion.y);
     Serial.print("\t");
-    Serial.println(q.z);
+    Serial.println(quaternion.z);
 
-    if(q.x < 0) {
-      if(q.y < 0) {
+    if(quaternion.x < 0) {
+      if(quaternion.y < 0) {
         Serial.println("X0\n00");
       }
       else {
@@ -352,7 +287,7 @@ void loop() {
       }
     }
     else {
-      if(q.y < 0) {
+      if(quaternion.y < 0) {
         Serial.println("00\nX0");
       }
       else {
@@ -363,8 +298,8 @@ void loop() {
 //*********************************************************************************************
 #ifdef OUTPUT_READABLE_EULER
     // display Euler angles in degrees
-    mpu.dmpGetQuaternion(&q, fifoBuffer);
-    mpu.dmpGetEuler(euler, &q);
+    mpu.dmpGetQuaternion(&quaternion, fifoBuffer);
+    mpu.dmpGetEuler(euler, &quaternion);
     euler[0] = euler[0] * 180 / M_PI + 180;
     euler[1] = euler[1] * 180 / M_PI;
 
@@ -413,9 +348,9 @@ void loop() {
 
 #ifdef OUTPUT_READABLE_YAWPITCHROLL
     // display Euler angles in degrees
-    mpu.dmpGetQuaternion(&q, fifoBuffer);
-    mpu.dmpGetGravity(&gravity, &q);
-    mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+    mpu.dmpGetQuaternion(&quaternion, fifoBuffer);
+    mpu.dmpGetGravity(&gravity, &quaternion);
+    mpu.dmpGetYawPitchRoll(ypr, &quaternion, &gravity);
     Serial.print("ypr\t");
     Serial.print(ypr[0] * 180/M_PI);
     Serial.print("\t");
@@ -426,9 +361,9 @@ void loop() {
 
 #ifdef OUTPUT_READABLE_REALACCEL
     // display real acceleration, adjusted to remove gravity
-    mpu.dmpGetQuaternion(&q, fifoBuffer);
+    mpu.dmpGetQuaternion(&quaternion, fifoBuffer);
     mpu.dmpGetAccel(&aa, fifoBuffer);
-    mpu.dmpGetGravity(&gravity, &q);
+    mpu.dmpGetGravity(&gravity, &quaternion);
     mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
     Serial.print("areal\t");
     Serial.print(aaReal.x);
@@ -441,11 +376,11 @@ void loop() {
 #ifdef OUTPUT_READABLE_WORLDACCEL
     // display initial world-frame acceleration, adjusted to remove gravity
     // and rotated based on known orientation from quaternion
-    mpu.dmpGetQuaternion(&q, fifoBuffer);
+    mpu.dmpGetQuaternion(&quaternion, fifoBuffer);
     mpu.dmpGetAccel(&aa, fifoBuffer);
-    mpu.dmpGetGravity(&gravity, &q);
+    mpu.dmpGetGravity(&gravity, &quaternion);
     mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-    mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &q);
+    mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &quaternion);
     Serial.print("aworld\t");
     Serial.print(aaWorld.x);
     Serial.print("\t");
@@ -454,22 +389,18 @@ void loop() {
     Serial.println(aaWorld.z);
 #endif
 
-#ifdef OUTPUT_TEAPOT
-    // display quaternion values in InvenSense Teapot demo format:
-    teapotPacket[2] = fifoBuffer[0];
-    teapotPacket[3] = fifoBuffer[1];
-    teapotPacket[4] = fifoBuffer[4];
-    teapotPacket[5] = fifoBuffer[5];
-    teapotPacket[6] = fifoBuffer[8];
-    teapotPacket[7] = fifoBuffer[9];
-    teapotPacket[8] = fifoBuffer[12];
-    teapotPacket[9] = fifoBuffer[13];
-    Serial.write(teapotPacket, 14);
-    teapotPacket[11]++;// packetCount, loops at 0xFF on purpose
-#endif
-
     // blink LED to indicate activity
     blinkState = !blinkState;
     digitalWrite(LED_PIN, blinkState);
   }
+}
+
+void setupServo(Servo servo, int pin) {
+  // attach to pin, with small delay and send init status
+  servo.attach(pin);
+  servo.writeMicroseconds(500);
+  delay(4);
+
+  servo.writeMicroseconds(1500); // init for ESC.
+  delay(300);
 }
