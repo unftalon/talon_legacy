@@ -12,7 +12,17 @@ Servo allThrusters[] = { servo9, servo10, servo11, servo12 };
 int thrusterStop = 1060;
 
 
-enum Commands { PAUSE, FORWARD, BACKWARD, LEFT, RIGHT, FORWARDSPEEDUP, FORWARDSPEEDDOWN, BACKWARDSPEEDUP, BACKWARDSPEEDDOWN };
+enum Commands {
+   PAUSE,
+   FORWARD,
+   BACKWARD,
+   LEFT,
+   RIGHT,
+   FORWARDSPEEDUP,
+   FORWARDSPEEDDOWN,
+   BACKWARDSPEEDUP,
+   BACKWARDSPEEDDOWN 
+};
 
 int currentGroup = 0; // currently active group
 int currentCommand = 0;
