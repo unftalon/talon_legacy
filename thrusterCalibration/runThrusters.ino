@@ -11,23 +11,15 @@ Servo allThrusters[] = { servo9, servo10, servo11, servo12 };
 
 int thrusterStop = 1060;
 
-int commands = {
-  0, // pause thrusters
-  1, // thruster forward
-  2, // thruster back
-  3, // left forward, right backward
-  4, // left backward, right forward
 
-  5, // increment forwardValue
-  6, // decrement forwardValue
-  7, // increment backwardValue
-  8  // decrement backwardValue
-}
+enum Commands { PAUSE, FORWARD, BACKWARD, LEFT, RIGHT, FORWARDSPEEDUP, FORWARDSPEEDDOWN, BACKWARDSPEEDUP, BACKWARDSPEEDDOWN };
 
 int currentGroup = 0; // currently active group
 int currentCommand = 0;
 int forwardValue = 1500;
 int backwardValue = 1500;
+
+int buffer[512];
 
 
 // we will interactively add or subtract to forward, backward values
@@ -48,11 +40,11 @@ void setupServo(Servo servo, int pin) {
 }
 
 void loop() {
-  if(Serial.available()) {
+  /*if(Serial.available()) {
      // send the group to control and then the command.
-     currentGroup = currentGroup(Serial.parseInt());
+     currentGroup = getCurrentGroup(Serial.parseInt());
      currentCommand = Serial.parseInt();
-  }
+  }*/
   
   // send the current group the current command.
   groupControl(currentGroup, currentCommand);
@@ -60,37 +52,37 @@ void loop() {
   pauseThrusters();
 }
 
-void groupControl(currentGroup, currentCommand) {
-    swtich(currentCommand) {
+void groupControl(int currentGroup, int currentCommand) {
+    switch(currentCommand) {
     // thruster directions
-    case commands[0]:
+    case PAUSE:
       pauseThrusters();
       break;
-    case commands[1]:
+    case FORWARD:
       commandGroup(currentGroup, forwardValue, forwardValue);
       break;
-    case commands[2]:
+    case BACKWARD:
       commandGroup(currentGroup, backwardValue, backwardValue);
       break;
-    case commands[3]:
+    case LEFT:
       commandGroup(currentGroup, forwardValue, backwardValue);
       break;
-    case commands[4]:
+    case RIGHT:
       commandGroup(currentGroup, backwardValue, forwardValue);
       break;
 
     // change thruster speed
-    case commands[5]:
+    case FORWARDSPEEDUP:
       forwardValue += incrementOrDecrementValue;
       break;
-    case commands[6]:
+    case FORWARDSPEEDDOWN:
       forwardValue -= incrementOrDecrementValue;
       break;
-    case commands[7]:
+    case BACKWARDSPEEDUP:
       backwardValue += incrementOrDecrementValue;
       break;
-    case commands[8]:
-      backwardValue += incrementOrDecrementValue;
+    case BACKWARDSPEEDDOWN:
+      backwardValue -= incrementOrDecrementValue;
       break;
     default:
       pauseThrusters();
@@ -99,7 +91,7 @@ void groupControl(currentGroup, currentCommand) {
 
 void commandGroup(int theGroup, int value1, int value2) {
   // Send commands to a Servo group
-  Servo group[] = getCurrentGroup(theGroup);
+  Servo* group = getCurrentGroup(theGroup);
   group[0].writeMicroseconds(value1);
   group[1].writeMicroseconds(value2);
   delay(2);
@@ -107,7 +99,7 @@ void commandGroup(int theGroup, int value1, int value2) {
 
 void pauseThrusters() {
   // stop all thrusters!
-  for(int i = 0; i < allThrusters.length(); i++) {
+  for(int i = 0; i < (sizeof(allThrusters)/sizeof(Servo)); i++) {
     allThrusters[i].writeMicroseconds(thrusterStop);
    }
    currentCommand = 0;
@@ -125,7 +117,7 @@ void runThroughRange(Servo myservo) {
   }
 }
 
-int[] getCurrentGroup(int group) {
+Servo* getCurrentGroup(int group) {
   return group == 1 ? thrusterGroup1 : thrusterGroup2;
 }
 
