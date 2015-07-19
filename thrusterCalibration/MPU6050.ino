@@ -190,6 +190,15 @@ void setup() {
   delay(1000); // delay to allow the ESC to recognize the stopped signal
   
   
+  servoLeft.writeMicroseconds(1500); // send "stop" signal to ESC.
+  servoRight.writeMicroseconds(1500); // send "stop" signal to ESC.
+  servoFH.writeMicroseconds(1500); // send "stop" signal to ESC.
+  servoBH.writeMicroseconds(1500); // send "stop" signal to ESC.
+  servoFV.writeMicroseconds(1500); // send "stop" signal to ESC.
+  servoBV.writeMicroseconds(1500); // send "stop" signal to ESC.
+  delay(1000); // delay to allow the ESC to recognize the stopped signal
+  
+  
   
     // join I2C bus (I2Cdev library doesn't do this automatically)
     #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
@@ -221,9 +230,9 @@ void setup() {
 
     // wait for ready
     Serial.println(F("\nSend any character to begin DMP programming and demo: "));
-    while (Serial.available() && Serial.read()); // empty buffer
-    while (!Serial.available());                 // wait for data
-    while (Serial.available() && Serial.read()); // empty buffer again
+//    while (Serial.available() && Serial.read()); // empty buffer
+//    while (!Serial.available());                 // wait for data
+//    while (Serial.available() && Serial.read()); // empty buffer again
 
     // load and configure the DMP
     Serial.println(F("Initializing DMP..."));
@@ -234,7 +243,7 @@ void setup() {
     mpu.setYGyroOffset(76);
     mpu.setZGyroOffset(-85);
     mpu.setZAccelOffset(1788); // 1688 factory default for my test chip
-
+    
     // make sure it worked (returns 0 if so)
     if (devStatus == 0) {
         // turn on the DMP, now that it's ready
@@ -280,6 +289,7 @@ int lastError = 0;
       int oldAccAngleX = 0;
       int oldAccAngleY = 0;
       float t_then = 0;
+      
 void loop() {
     // if programming failed, don't try to do anything
     if (!dmpReady) return;
@@ -393,12 +403,12 @@ void loop() {
               servoFH.writeMicroseconds(error1); // Send signal to ESC.
               servoBH.writeMicroseconds(-error1); // Send signal to ESC.
               
-              servoFV.writeMicroseconds(euler[1]); // Send signal to ESC.
+              servoFV.writeMicroseconds(euler[2]); // Send signal to ESC.
               servoBV.writeMicroseconds(-euler[1]); // Send signal to ESC.
 
 
-              Serial.print("  FV  ");
-              Serial.print(euler[2]);
+              Serial.print("  motorLeft  ");
+              Serial.print(euler[2] * 100);
               Serial.print("  BV  ");
               Serial.println(-euler[2]);
 //              Serial.print("Error  ");
