@@ -4,13 +4,10 @@ Servo servo2;
 Servo servo3;
 Servo servo4;
 Servo servo5;
-Servo servo6;
-Servo servo7;
 
 Servo thrusterGroup1[] = { servo2, servo3 }; // groups of 2 Servos
 Servo thrusterGroup2[] = { servo4, servo5 };
-Servo thrusterGroup3[] = { servo6, servo7 };
-Servo allThrusters[] = {  servo2, servo3, servo4, servo5, servo6, servo7 };
+Servo allThrusters[] = { servo3, servo5, servo4, servo5 };
 
 int thrusterStop = 1500;
 
@@ -37,31 +34,48 @@ char buffer[512];
 int incrementOrDecrementValue = 1;
 
 void setup() {
+  setupRelay();
 }
 
-void loop() {
+void setupServo(Servo servo, int pin) {
+  // attach to pin, with small delay and send init status
+  servo.attach(pin);
+  servo.writeMicroseconds(500);
+  delay(4);
 
+  servo.writeMicroseconds(1500); // init for ESC.
+  delay(300);
+}
+
+void setupRelay() {
   pinMode(52, OUTPUT);
   delay(500);
   digitalWrite(52, LOW);
   delay(500);
-
   digitalWrite(52, HIGH);
   delay(2000);
+}
+
+void loop() {
+  
+}
+
+void loop2() {
+  return;
+
+  setupRelay();
 
   setupServo(servo2, 2);
   setupServo(servo3, 3);
   setupServo(servo4, 4);
   setupServo(servo5, 5);
-  setupServo(servo6, 6);
-  setupServo(servo7, 7);
-  delay(1000);
-  Serial.println("ready");
+  
+  
+  delay(2000);
 
   while (1) {
     myLoop();
   }
-  digitalWrite(52, LOW);
 }
 
 void myLoop() {
@@ -79,9 +93,6 @@ void myLoop() {
 }
 
 void groupControl(int currentGroup, int currentCommand) {
-  Serial.print("CurrentGroup: ");
-  Serial.print(currentGroup);
-  Serial.print(" ");
   switch (currentCommand) {
     // thruster directions
     case PAUSE:
@@ -192,6 +203,11 @@ int setSerialBuffer() {
     }
   }
 }
+
+void relayDisconnect() {
+  // emergency stop
+  digitalWrite(52, LOW);
+}
 /*
 
 int setSerial3Buffer() {
@@ -214,13 +230,3 @@ int setSerial3Buffer() {
   }
 }
 */
-
-void setupServo(Servo servo, int pin) {
-  // attach to pin, with small delay and send init status
-  servo.attach(pin);
-  servo.writeMicroseconds(500);
-  delay(4);
-
-  servo.writeMicroseconds(1500); // init for ESC.
-  delay(300);
-}
