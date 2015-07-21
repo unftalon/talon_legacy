@@ -221,7 +221,7 @@ int oldAccAngleX = 0;
 int oldAccAngleY = 0;
 float t_then = 0;
 
-void loop() {
+void ensureDmpReady() {
   // if programming failed, don't try to do anything
   if (!dmpReady)
     return;
@@ -246,6 +246,9 @@ void loop() {
 
   // get current FIFO count
   fifoCount = mpu.getFIFOCount();
+}
+void loop() {
+  ensureDmpReady(); // ensure dump ready
 
   // check for overflow (this should never happen unless our code is too inefficient)
   if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
@@ -255,7 +258,12 @@ void loop() {
 
     // otherwise, check for DMP data ready interrupt (this should happen frequently)
   } else if (mpuIntStatus & 0x02) {
-    // wait for correct available data length, should be a VERY short wait
+    handleDmpDataInterrupt();
+  }
+}
+
+void handleDmpDataInterrupt() {
+      // wait for correct available data length, should be a VERY short wait
     while (fifoCount < packetSize)
       fifoCount = mpu.getFIFOCount();
 
@@ -265,51 +273,21 @@ void loop() {
     // track FIFO count here in case there is > 1 packet available
     // (this lets us immediately read more without waiting for an interrupt)
     fifoCount -= packetSize;
-
-#ifdef OUTPUT_READABLE_QUATERNION
-    // display quaternion values in easy matrix form: w x y z
-    mpu.dmpGetQuaternion(&quaternion, fifoBuffer);//In MPU6050_6axismotionapps20.h on line 619 and mpu6050.h on line 827
-    Serial.print("quat\t");
-    Serial.print(quaternion.w);
-    Serial.print("\t");
-    Serial.print(quaternion.x);
-    Serial.print("\t");
-    Serial.print(quaternion.y);
-    Serial.print("\t");
-    Serial.println(quaternion.z);
-
-    if(quaternion.x < 0) {
-      if(quaternion.y < 0) {
-        Serial.println("X0\n00");
-      }
-      else {
-        Serial.println("0X\n00");
-      }
-    }
-    else {
-      if(quaternion.y < 0) {
-        Serial.println("00\nX0");
-      }
-      else {
-        Serial.println("00\n0X");
-      }
-    }
-#endif
-//*********************************************************************************************
 #ifdef OUTPUT_READABLE_EULER
     // display Euler angles in degrees
     mpu.dmpGetQuaternion(&quaternion, fifoBuffer);
     mpu.dmpGetEuler(euler, &quaternion);
     euler[0] = euler[0] * 180 / M_PI + 180;
+
     euler[1] = euler[1] * 180 / M_PI;
 
-    /*Serial.print("euler\t");
+    Serial.print("euler   ");
      Serial.print(euler[0]);
-     Serial.print("\t");
+     Serial.print("  ");
      Serial.print(euler[1] * 180/M_PI);
-     Serial.print("\t");
-     Serial.println(euler[2] * 180/M_PI);
-     */
+     Serial.print("       ");
+//      Serial.print(euler[2] * 180/M_PI);
+     Serial.print("\t\t||");
 
     int Kp = 10;
     int Kd = 1;
@@ -341,8 +319,8 @@ void loop() {
     Serial.print(euler[2] * 100);
     Serial.print("  BV  ");
     Serial.println(-euler[2]);
-//              Serial.print("Error  ");
-//              Serial.println(error);
+    //  Serial.print("Error  ");
+    //  Serial.println(error);
 
 #endif
 
@@ -392,7 +370,6 @@ void loop() {
     // blink LED to indicate activity
     blinkState = !blinkState;
     digitalWrite(LED_PIN, blinkState);
-  }
 }
 
 void setupServo(Servo servo, int pin) {
