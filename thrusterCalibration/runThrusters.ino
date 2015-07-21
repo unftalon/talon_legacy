@@ -208,6 +208,11 @@ void relayDisconnect() {
   digitalWrite(52, LOW);
 }
 
+void commandServo(Servo theServo, int value) {
+  theServo.writeMicroseconds(value);
+  delay(2);
+}
+
 int setSerial3Buffer() {
   // FYI:
   // We can't replace this with serialPort.readString();
