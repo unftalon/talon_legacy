@@ -117,12 +117,12 @@ Servo servoBV;
 
 void setup() {
 
-  servoSetup(servoLeft., servoPin2);
-  servoSetup(servoRight, servoPin3);
-  servoSetup(servoFH, servoPin4);
-  servoSetup(servoBH, servoPin5);
-  servoSetup(servoFV, servoPin6);
-  servoSetup(servoBV, servoPin7);
+  setupServo(servoLeft, servoPin2);
+  setupServo(servoRight, servoPin3);
+  setupServo(servoFH, servoPin4);
+  setupServo(servoBH, servoPin5);
+  setupServo(servoFV, servoPin6);
+  setupServo(servoBV, servoPin7);
 
   // join I2C bus (I2Cdev library doesn't do this automatically)
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
@@ -399,8 +399,8 @@ void setupServo(Servo servo, int pin) {
   // attach to pin, with small delay and send init status
   servo.attach(pin);
   servo.writeMicroseconds(500);
-  delay(4);
+  delay(500);
 
   servo.writeMicroseconds(1500); // init for ESC.
-  delay(300);
+  delay(500);
 }
