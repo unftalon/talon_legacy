@@ -4,10 +4,14 @@ Servo servo2;
 Servo servo3;
 Servo servo4;
 Servo servo5;
+Servo servo6;
+Servo servo7;
 
-Servo thrusterGroup1[] = { servo2, servo3 }; // groups of 2 Servos
+Servo thrusterGroup1[] = { servo2, servo3 };
 Servo thrusterGroup2[] = { servo4, servo5 };
-Servo allThrusters[] = { servo3, servo5, servo4, servo5 };
+Servo thrusterGroup3[] = { servo6, servo7 };
+
+Servo allThrusters[] = { servo3, servo5, servo4, servo5, servo6, servo7 };
 
 int thrusterStop = 1500;
 
@@ -34,17 +38,16 @@ char buffer[512];
 int incrementOrDecrementValue = 1;
 
 void setup() {
-  setupRelay();
 }
 
 void setupServo(Servo servo, int pin) {
   // attach to pin, with small delay and send init status
   servo.attach(pin);
   servo.writeMicroseconds(500);
-  delay(4);
+  delay(500);
 
   servo.writeMicroseconds(1500); // init for ESC.
-  delay(300);
+  delay(500);
 }
 
 void setupRelay() {
@@ -57,11 +60,6 @@ void setupRelay() {
 }
 
 void loop() {
-  
-}
-
-void loop2() {
-  return;
 
   setupRelay();
 
@@ -69,8 +67,9 @@ void loop2() {
   setupServo(servo3, 3);
   setupServo(servo4, 4);
   setupServo(servo5, 5);
-  
-  
+  setupServo(servo6, 6);
+  setupServo(servo7, 7);
+
   delay(2000);
 
   while (1) {
@@ -180,7 +179,7 @@ Servo* getCurrentGroup(int group) {
     case 2:
       return thrusterGroup2;
     case 3:
-      return thrusterGroup32;
+      return thrusterGroup3;
   }
 }
 
@@ -208,7 +207,6 @@ void relayDisconnect() {
   // emergency stop
   digitalWrite(52, LOW);
 }
-/*
 
 int setSerial3Buffer() {
   // FYI:
@@ -229,4 +227,3 @@ int setSerial3Buffer() {
     }
   }
 }
-*/
