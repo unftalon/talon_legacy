@@ -276,97 +276,34 @@ void handleDmpDataInterrupt() {
 #ifdef OUTPUT_READABLE_EULER
     // display Euler angles in degrees
     mpu.dmpGetQuaternion(&quaternion, fifoBuffer);
-    mpu.dmpGetEuler(euler, &quaternion);
+    mpu.dmpGetEuler(euler, &quaternion); // set the data for euler var
+
+
     euler[0] = euler[0] * 180 / M_PI + 180;
-
     euler[1] = euler[1] * 180 / M_PI;
+    if(display == 0) {
+      display = 1;
+    } else {
+      Serial.print("euler[0](psi):");
+      Serial.print(euler[0]);
+      Serial.print(", euler[1](theta):");
+      Serial.print(euler[1]);
+      Serial.print(", euler[2](phi):");
+      Serial.println(euler[2]);
+      display = 0;
+    }
+   
+//    servoLeft.writeMicroseconds(motorLeft); // Send signal to ESC.
+//    servoRight.writeMicroseconds(motorRight); // Send signal to ESC.
+//
+//    servoFH.writeMicroseconds(error1); // Send signal to ESC.
+//    servoBH.writeMicroseconds(-error1); // Send signal to ESC.
+//
+//    servoFV.writeMicroseconds(euler[2]); // Send signal to ESC.
+//    servoBV.writeMicroseconds(-euler[1]); // Send signal to ESC.
 
-    Serial.print("euler   ");
-     Serial.print(euler[0]);
-     Serial.print("  ");
-     Serial.print(euler[1] * 180/M_PI);
-     Serial.print("       ");
-//      Serial.print(euler[2] * 180/M_PI);
-     Serial.print("\t\t||");
-
-    int Kp = 10;
-    int Kd = 1;
-    int midSpeed = 1600;
-    int motorLeft;
-    int motorRight;
-
-    int angle = 180;
-    int error1 = angle - (euler[0]);
-
-    int motorSpeed = Kp * error1 + Kd * (error1 - lastError);
-    lastError = error1;
-    Serial.print("motorspeed  ");
-    Serial.print(motorSpeed);
-
-    motorLeft = midSpeed + motorSpeed;
-    motorRight = midSpeed - motorSpeed;
-
-    servoLeft.writeMicroseconds(motorLeft); // Send signal to ESC.
-    servoRight.writeMicroseconds(motorRight); // Send signal to ESC.
-
-    servoFH.writeMicroseconds(error1); // Send signal to ESC.
-    servoBH.writeMicroseconds(-error1); // Send signal to ESC.
-
-    servoFV.writeMicroseconds(euler[2]); // Send signal to ESC.
-    servoBV.writeMicroseconds(-euler[1]); // Send signal to ESC.
-
-    Serial.print("  motorLeft  ");
-    Serial.print(euler[2] * 100);
-    Serial.print("  BV  ");
-    Serial.println(-euler[2]);
-    //  Serial.print("Error  ");
-    //  Serial.println(error);
 
 #endif
-
-#ifdef OUTPUT_READABLE_YAWPITCHROLL
-    // display Euler angles in degrees
-    mpu.dmpGetQuaternion(&quaternion, fifoBuffer);
-    mpu.dmpGetGravity(&gravity, &quaternion);
-    mpu.dmpGetYawPitchRoll(ypr, &quaternion, &gravity);
-    Serial.print("ypr\t");
-    Serial.print(ypr[0] * 180/M_PI);
-    Serial.print("\t");
-    Serial.print(ypr[1] * 180/M_PI);
-    Serial.print("\t");
-    Serial.println(ypr[2] * 180/M_PI);
-#endif
-
-#ifdef OUTPUT_READABLE_REALACCEL
-    // display real acceleration, adjusted to remove gravity
-    mpu.dmpGetQuaternion(&quaternion, fifoBuffer);
-    mpu.dmpGetAccel(&aa, fifoBuffer);
-    mpu.dmpGetGravity(&gravity, &quaternion);
-    mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-    Serial.print("areal\t");
-    Serial.print(aaReal.x);
-    Serial.print("\t");
-    Serial.print(aaReal.y);
-    Serial.print("\t");
-    Serial.println(aaReal.z);
-#endif
-
-#ifdef OUTPUT_READABLE_WORLDACCEL
-    // display initial world-frame acceleration, adjusted to remove gravity
-    // and rotated based on known orientation from quaternion
-    mpu.dmpGetQuaternion(&quaternion, fifoBuffer);
-    mpu.dmpGetAccel(&aa, fifoBuffer);
-    mpu.dmpGetGravity(&gravity, &quaternion);
-    mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-    mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &quaternion);
-    Serial.print("aworld\t");
-    Serial.print(aaWorld.x);
-    Serial.print("\t");
-    Serial.print(aaWorld.y);
-    Serial.print("\t");
-    Serial.println(aaWorld.z);
-#endif
-
     // blink LED to indicate activity
     blinkState = !blinkState;
     digitalWrite(LED_PIN, blinkState);
