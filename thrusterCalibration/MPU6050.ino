@@ -278,30 +278,35 @@ void handleDmpDataInterrupt() {
     mpu.dmpGetQuaternion(&quaternion, fifoBuffer);
     mpu.dmpGetEuler(euler, &quaternion); // set the data for euler var
 
+    Serial.print("euler[0](psi):");
+    Serial.print(euler[0]);
+    Serial.print(", euler[1](theta):");
+    Serial.print(euler[1]);
+    Serial.print(", euler[2](phi):");
+    Serial.println(euler[2]);
 
-    euler[0] = euler[0] * 180 / M_PI + 180;
-    euler[1] = euler[1] * 180 / M_PI;
-    if(display == 0) {
-      display = 1;
-    } else {
-      Serial.print("euler[0](psi):");
-      Serial.print(euler[0]);
-      Serial.print(", euler[1](theta):");
-      Serial.print(euler[1]);
-      Serial.print(", euler[2](phi):");
-      Serial.println(euler[2]);
-      display = 0;
+    if(euler[1] > 0.3) {
+      servoFV.writeMicroseconds(1575);
+      servoBV.writeMicroseconds(1425);
+      delay(250);
+      return;
     }
-   
-//    servoLeft.writeMicroseconds(motorLeft); // Send signal to ESC.
-//    servoRight.writeMicroseconds(motorRight); // Send signal to ESC.
-//
-//    servoFH.writeMicroseconds(error1); // Send signal to ESC.
-//    servoBH.writeMicroseconds(-error1); // Send signal to ESC.
-//
-//    servoFV.writeMicroseconds(euler[2]); // Send signal to ESC.
-//    servoBV.writeMicroseconds(-euler[1]); // Send signal to ESC.
+    
+    if(euler[1] < -0.3) {
+      servoFV.writeMicroseconds(1425);
+      servoBV.writeMicroseconds(1575);
+      delay(250);
+      return;
+    }
 
+    if(euler[2] > 0.3 || euler[2] < -0.3) {
+      servoFV.writeMicroseconds(1500);
+      servoBV.writeMicroseconds(1500);
+      delay(1000);
+      return;
+    }
+
+    // use camera controls! 
 
 #endif
     // blink LED to indicate activity
