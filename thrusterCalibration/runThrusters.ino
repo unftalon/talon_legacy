@@ -29,8 +29,12 @@ enum Commands {
 
 int currentGroup = 0; // currently active group
 int currentCommand = 0;
-int forwardValue = 1575;
-int backwardValue = 1425;
+int forwardValue1 = 1575;
+int forwardValue2 = 1575;
+int forwardValue3 = 1575;
+int backwardValue1 = 1425;
+int backwardValue2 = 1425;
+int backwardValue3 = 1425;
 
 char buffer[512];
 
@@ -92,6 +96,10 @@ void myLoop() {
 }
 
 void groupControl(int currentGroup, int currentCommand) {
+
+  int forwardValue = getForwardValueForGroup(currentGroup);
+  int backwardValue = getBackwardValueForGroup(currentGroup);
+
   switch (currentCommand) {
     // thruster directions
     case PAUSE:
@@ -113,24 +121,6 @@ void groupControl(int currentGroup, int currentCommand) {
     case RIGHT:
       Serial.println("Case RIGHT");
       commandGroup(currentGroup, backwardValue, forwardValue);
-      break;
-
-    // change thruster speed
-    case FORWARDSPEEDUP:
-      Serial.println("Case FORWARDSPEEDUP");
-      forwardValue += incrementOrDecrementValue;
-      break;
-    case FORWARDSPEEDDOWN:
-      Serial.println("Case FORWARDSPEEDDOWN");
-      forwardValue -= incrementOrDecrementValue;
-      break;
-    case BACKWARDSPEEDUP:
-      Serial.println("Case BACKWARDSPEEDUP");
-      backwardValue += incrementOrDecrementValue;
-      break;
-    case BACKWARDSPEEDDOWN:
-      Serial.println("Case BACKWARDSPEEDDOWN");
-      backwardValue -= incrementOrDecrementValue;
       break;
     default:
       pauseThrusters();
@@ -211,6 +201,32 @@ void relayDisconnect() {
 void commandServo(Servo theServo, int value) {
   theServo.writeMicroseconds(value);
   delay(2);
+}
+
+int getForwardValueForGroup(int theGroup) {
+  switch(theGroup) {
+    case 1:
+      return forwardValue1;
+    case 2:
+      return forwardValue2;
+    case 3:
+      return forwardValue3;
+    default: 
+      return 1500;
+  }
+}
+
+int getBackwardValueForGroup(int theGroup) {
+    switch(theGroup) {
+    case 1:
+      return backwardValue1;
+    case 2:
+      return backwardValue2;
+    case 3:
+      return backwardValue3; 
+    default: 
+      return 1500;
+  }
 }
 
 int setSerial3Buffer() {
