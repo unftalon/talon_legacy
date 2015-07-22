@@ -41,9 +41,6 @@ char buffer[512];
 // we will interactively add or subtract to forward, backward values
 int incrementOrDecrementValue = 1;
 
-void setup() {
-}
-
 void setupServo(Servo servo, int pin) {
   // attach to pin, with small delay and send init status
   servo.attach(pin);
@@ -63,8 +60,8 @@ void setupRelay() {
   delay(2000);
 }
 
-void loop() {
 
+void setup() {
   setupRelay();
 
   setupServo(servo2, 2);
@@ -75,10 +72,10 @@ void loop() {
   setupServo(servo7, 7);
 
   delay(2000);
+}
 
-  while (1) {
-    myLoop();
-  }
+void loop() {
+  myLoop();
 }
 
 void myLoop() {
