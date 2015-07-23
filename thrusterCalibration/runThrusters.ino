@@ -27,16 +27,29 @@ enum Commands {
   BACKWARDSPEEDDOWN   // 8
 };
 
-int currentGroup = 0; // currently active group
-int currentCommand = 0;
-int forwardValue1 = 1575;
-int forwardValue2 = 1575;
-int forwardValue3 = 1575;
+int currentGroup1 = 0;
+int currentCommand1 = 0;
+int currentGroup2 = 0;
+int currentCommand2 = 0;
+int currentGroup3 = 0;
+int currentCommand3 = 0;
+
+
+int forwardValue1 = 1650;
 int backwardValue1 = 1425;
-int backwardValue2 = 1425;
-int backwardValue3 = 1425;
+
+int forwardValue2 = 1600;
+int backwardValue2 = 1500;
+
+int forwardValue3 = 1550;
+int backwardValue3 = 1400;
 
 char buffer[512];
+
+void loop() {
+  // myLoop();
+ // commandServo(servo3, 1600);
+}
 
 // we will interactively add or subtract to forward, backward values
 int incrementOrDecrementValue = 1;
@@ -60,8 +73,12 @@ void setupRelay() {
   delay(2000);
 }
 
-
 void setup() {
+  starterPin = 12;
+  pinMode(starterPin, INPUT);
+  digitalRead(starterPin);
+  while(digitalRead(starterPin) != HIGH);
+  
   setupRelay();
 
   setupServo(servo2, 2);
@@ -70,26 +87,29 @@ void setup() {
   setupServo(servo5, 5);
   setupServo(servo6, 6);
   setupServo(servo7, 7);
-
+  Serial3.begin(9600);
+  Serial.begin(9600);
   delay(2000);
 }
 
-void loop() {
-  myLoop();
-}
-
 void myLoop() {
-  Serial.begin(9600);
-  setSerialBuffer(); // set buffer from user input
-  // Serial.println(buffer); // print the user input
-  currentGroup = buffer[0] - 48;
-  currentCommand = buffer[2] - 48;
 
+  setSerial3Buffer(); // set buffer from user input
+  Serial.println(buffer);
+  currentGroup1 = buffer[0] - 48;
+  currentCommand1 = buffer[2] - 48;
+  currentGroup2 = buffer[4] - 48;
+  currentCommand2 = buffer[6] - 48;
+  currentGroup3 = buffer[8] - 48;
+  currentCommand3 = buffer[10] - 48;
+  
   // send the current group the current command.
-  groupControl(currentGroup, currentCommand);
-  delay(500);
+  groupControl(1, 1);
+  groupControl(currentGroup2, currentCommand2);
+  groupControl(currentGroup3, currentCommand3);
+  
+  delay(50);
   // pauseThrusters();
-
 }
 
 void groupControl(int currentGroup, int currentCommand) {
@@ -144,7 +164,8 @@ void pauseThrusters() {
   for (int i = 0; i < (sizeof(allThrusters) / sizeof(Servo)); i++) {
     allThrusters[i].writeMicroseconds(thrusterStop);
   }
-  currentCommand = 0;
+  currentCommand1 = 0;
+  currentCommand2 = 0;
 }
 
 void runThroughRange(Servo myservo) {
