@@ -11,7 +11,7 @@ Servo thrusterGroup1[] = { servo2, servo3 };
 Servo thrusterGroup2[] = { servo4, servo5 };
 Servo thrusterGroup3[] = { servo6, servo7 };
 
-Servo allThrusters[] = { servo3, servo5, servo4, servo5, servo6, servo7 };
+Servo allThrusters[] = { servo2, servo3, servo4, servo5, servo6, servo7 };
 
 int thrusterStop = 1500;
 
@@ -27,11 +27,11 @@ enum Commands {
   BACKWARDSPEEDDOWN   // 8
 };
 
-int currentGroup1 = 0;
+int currentGroup1   = 0;
 int currentCommand1 = 0;
-int currentGroup2 = 0;
+int currentGroup2   = 0;
 int currentCommand2 = 0;
-int currentGroup3 = 0;
+int currentGroup3   = 0;
 int currentCommand3 = 0;
 
 
@@ -45,10 +45,30 @@ int forwardValue3 = 1550;
 int backwardValue3 = 1400;
 
 char buffer[512];
+int killSwitch = 0;
 
+int starterPin = 28;
+  
 void loop() {
-  // myLoop();
- // commandServo(servo3, 1600);
+  if(digitalRead(starterPin) == LOW) {
+    killSwitch = 0;
+    Serial.println("detected starterPin off");
+  }
+
+  if(digitalRead(starterPin) == HIGH && killSwitch == 0) {
+    Serial.println("setting up again");
+    setup();
+  }
+  straight();
+}
+
+void straight() {
+  commandGroup(1, 1750, 1750);
+  
+  commandGroup(2, 1650,1650);
+  delay(700);
+  commandGroup(2, 1500,1500);
+  delay(500);
 }
 
 // we will interactively add or subtract to forward, backward values
@@ -74,22 +94,28 @@ void setupRelay() {
 }
 
 void setup() {
-  starterPin = 12;
+  Serial.begin(9600);
+
   pinMode(starterPin, INPUT);
-  digitalRead(starterPin);
-  while(digitalRead(starterPin) != HIGH);
+
+  while( digitalRead(starterPin) != HIGH ) {
+    Serial.println("waiting");
+  }
+  Serial.println("starting..");
+  killSwitch = 1;
   
-  setupRelay();
+  delay(5000);
 
   setupServo(servo2, 2);
   setupServo(servo3, 3);
   setupServo(servo4, 4);
   setupServo(servo5, 5);
-  setupServo(servo6, 6);
-  setupServo(servo7, 7);
+//  setupServo(servo6, 6);
+//  setupServo(servo7, 7);
   Serial3.begin(9600);
   Serial.begin(9600);
   delay(2000);
+  
 }
 
 void myLoop() {
