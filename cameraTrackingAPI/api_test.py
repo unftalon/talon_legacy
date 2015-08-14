@@ -1,48 +1,54 @@
 import numpy as np
 import cv2
-from ospery_diver import Camera, Display, Executor, tasks, Communicator
+from ospery_diver import Camera, Executor, tasks, Communicator
 from ospery_diver.util import *
 import time
 
-cam = Camera(cv2)
-display = Display(cv2)
+cam = cv2.VideoCapture(0)
 executor = Executor(cv2, np)
-comm = Communicator('COM3', 9600)
-# for video logging please donot erase!
-# fps = 13
-# size = cam.getFrameSize()
-# fwdCamFileName = 'fwdCamera.avi'
-# videoWriter = cam.getVideoSettings(fwdCamFileName,fps,size)
-# numFramesRemaining = 10 * fps - 1
-colorCalibrate(all_colors())
+comm = Communicator('/dev/ttyAMA0', 9600)
+# calibrated_color = long_range_orange()
+# colorCalibrate(calibrated_color)
+# display = Display(cv2)
+ret, frame = cam.read()
+height, width, _ = frame.shape
+mid_x = width / 2
+mid_y = height / 2
+i = 0
 
-comm.listen()
+turn = False
 while( True ):
-	frame = cam.getFrame()
+    i += 1
+    ret, frame = cam.read()
+    cv2.imwrite('/home/pi/test' + str(i) + '.jpg', frame)
+    pointTask = executor.run(tasks.gateDetector, frame, orange())
+    pointResult = pointTask.result()
+    pointResult.drawOnFrame(frame)
+    
+    # display.show(frame, 'frame')
+    # display.show(threshold, 'threshold')
+    command = "1 1 "
+    if pointResult.value() is not None:
+        gate_x = pointResult.value()[0]
+        gate_y = pointResult.value()[1]
 
-	pointTask = executor.run(tasks.gateDetector, frame, orange())
-	
-	pointResult = pointTask.result()
-	pointResult.drawOnFrame(frame)
-	
-	if pointResult.value() is not None:
-		center = pointResult.value()
-		comm.writePoint(center)
-		
-	
-	#rectResult = executor.run(tasks.findBoundingRectsByColor, frame, orange())
-	#rectResult.result().drawOnFrame(frame)
-	
-	display.show(pointTask.getThresholdFrame(), "rect_threshold")
-	
-	
+        if gate_y < mid_y:
+            command += "2 1"
+        else:
+            command += "2 3"
 
-	if (display.show(frame, "output")==-1):
-		break
+        turn = False
+        if gate_x > mid_x:
+            command += " 3 3" # left
+            turn = True
+        if gate_x < mid_x:
+            command += " 3 4" # right
+            turn = True
+    else:
+        print "None"
 
-    #while numFramesRemaining > 0:
-        #cam.recordFrame(frame, videoWriter)
-        #frame = cam.getFrame()
-        #numFramesRemaining -= 1
-
-display.destroy()
+    if turn == False:
+        command = "3 0 1 1" # no turn
+        print "no turn"
+    print command
+    comm.writeln(command)
