@@ -15,6 +15,7 @@ Pull requests welcome! (Message me if you are not comfortable with git)
 ## Getting started
 
 - Please visit the Johnny-Five link above, and go through the blink-led tutorials. There are plenty.
+- Play around with circuits with [123d.circuits.io](https://123d.circuits.io/lab)
 
 - Join us on Slack! Message for an invite.
 
