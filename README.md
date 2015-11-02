@@ -31,4 +31,18 @@ Pull requests welcome! (Message me if you are not comfortable with git)
 
 ## Running the current code
 
+### Installing Dependencies 
+
+ - Prior to installing depedencies for running the code it is recommended that your OS is updated. 
+ 
+ #### Ubuntu Linux 14.04 
+
+  - Ensure that system is up to date by entering the following commands in terminal: 
+  - sudo apt-get update
+sudo apt-get upgrade
+
+  - To install the dependencies required for OpenCV, just run the following commands:
+
+`sudo apt-get install build-essential libgtk2.0-dev libjpeg-dev libtiff4-dev libjasper-dev libopenexr-dev cmake python-dev python-numpy python-tk libtbb-dev libeigen3-dev yasm libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev libqt4-dev libqt4-opengl-dev sphinx-common texlive-latex-extra libv4l-dev libdc1394-22-dev libavcodec-dev libavformat-dev libswscale-dev default-jdk ant libvtk5-qt4-dev`
+
 - more documentation coming soon! Contact me for now!
