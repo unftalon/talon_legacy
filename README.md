@@ -39,8 +39,7 @@ Pull requests welcome! (Message me if you are not comfortable with git)
 
   - Ensure that system is up to date by entering the following commands in terminal: 
 
-  `sudo apt-get update
-   sudo apt-get upgrade`
+  `sudo apt-get update && sudo apt-get upgrade`
 
   - To install the dependencies required for OpenCV, just run the following commands:
 
