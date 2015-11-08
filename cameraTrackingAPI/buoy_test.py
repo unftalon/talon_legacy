@@ -26,7 +26,7 @@ while( True ):
 	
 	display.show(buoyTask.getThresholdFrame(), "buoy_threshold")
 	
-	#rectResult = executor.run(tasks.findBoundingRectsByColor, frame, orange())
+	#rectResult = executor.run(tasks.findBoundingRectsByColor, frame, ORANGE)
 	#rectResult.result().drawOnFrame(frame)
 	
     
