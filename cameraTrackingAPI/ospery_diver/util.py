@@ -7,9 +7,9 @@ import threading
 
 # openCV will only work with Numpy Arrays
 # the three item represented in HSV (Hue, Saturation, and Value)
-ORANGE = { 'lower': np.array([5, 100, 100],np.uint8),  'upper': np.array([15, 230, 255],np.uint8) };
-BLUE = { 'lower': np.array([100, 125, 30],np.uint8),  'upper': np.array([170, 240, 230],np.uint8) };
-GREEN = { 'lower': np.array([60, 80, 30],np.uint8),  'upper': np.array([90, 240, 215],np.uint8) };
+ORANGE = { 'lower': np.array([5, 100, 50],np.uint8),  'upper': np.array([15, 230, 255],np.uint8) };
+BLUE = { 'lower': np.array([110, 100, 50],np.uint8),  'upper': np.array([130, 230, 255],np.uint8) };
+GREEN = { 'lower': np.array([65, 100, 50],np.uint8),  'upper': np.array([100, 230, 255],np.uint8) };
 YELLOW = { 'lower': np.array([25, 155, 100],np.uint8),  'upper': np.array([45, 240, 200], np.uint8) };
 INREMENT_VALUE = 5
 ALLCOLORS = { 'lower': np.array([0, 00, 00],np.uint8),  'upper': np.array([255, 255, 255],np.uint8) };
