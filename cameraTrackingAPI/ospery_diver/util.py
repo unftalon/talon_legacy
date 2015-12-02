@@ -3,7 +3,7 @@ import cv2
 import sys
 import Queue
 import threading
-
+import subprocess
 
 # openCV will only work with Numpy Arrays
 # the three item represented in HSV (Hue, Saturation, and Value)
@@ -13,6 +13,19 @@ GREEN = { 'lower': np.array([65, 100, 50],np.uint8),  'upper': np.array([100, 23
 YELLOW = { 'lower': np.array([25, 155, 100],np.uint8),  'upper': np.array([45, 240, 200], np.uint8) };
 INREMENT_VALUE = 5
 ALLCOLORS = { 'lower': np.array([0, 00, 00],np.uint8),  'upper': np.array([255, 255, 255],np.uint8) };
+
+PATH_TO_FILTERS = "ospery_diver/filters/"
+FILTERS = {'uwcorrect' : PATH_TO_FILTERS+"uwcorrect"}
+
+
+def runFilterScript(filter, input):
+    
+    print FILTERS[filter]+" input.jpg output.jpg"
+    cv2.imwrite("input"+".jpg", input)
+    process = subprocess.Popen([FILTERS[filter], "input.jpg" , "output.jpg"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process.wait() 
+    return cv2.imread("output.jpg")
+
 
 def long_range_orange():
     return LONG_RANGE_ORANGE
