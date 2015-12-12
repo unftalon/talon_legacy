@@ -43,9 +43,14 @@ class GateDetectorTask:
 
             points = np.array(points)
             points = np.float32(points)
-            term_crit = (cv2.TERM_CRITERIA_EPS, 40, 0.1)
+            # Define criteria = ( type, max_iter = 10 , epsilon = 1.0 )
+            criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+             
+            # Set flags (Just to avoid line break in the code)
+            flags = cv2.KMEANS_RANDOM_CENTERS
 
-            ret, labels, centers = cv2.kmeans(points, 1, term_crit, 40, 0)
+            # Apply KMeans
+            compactness,labels,centers = cv2.kmeans(points,1,None,criteria,10,flags)
             self.coordinates = (int(centers[0,0]), int(centers[0,1]))
            
 
@@ -53,6 +58,9 @@ class GateDetectorTask:
         if(not hasattr(self, 'coordinates')):
             return UnsuccessfulTaskResult(self.cv2)
         return PointTaskResult(self.cv2, self.coordinates)
+
+    def getFilteredFrame(self):
+        return self.image
 
     def getThresholdFrame(self):
         return self.detected

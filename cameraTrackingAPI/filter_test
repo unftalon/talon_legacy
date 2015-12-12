@@ -18,12 +18,12 @@ for file in dirs:
 
    image = cv2.imread(path+file)
    
-   buoyTask = executor.run(tasks.buoyDetector, image, color, ['uwcorrect'])   # Execute the task. The executed task can be stored in variable  
+   buoyTask = executor.run(tasks.gateDetector, image, color, ['uwcorrect'])   # Execute the task. The executed task can be stored in variable  
    buoyResult = buoyTask.result() 
    filtered_image = buoyTask.getFilteredFrame()
    cv2.imwrite("filtered/"+file, filtered_image)
-   output = buoyResult.drawOnFrame(image)
-   cv2.imwrite("output/"+file, output)
+   buoyResult.drawOnFrame(image)
+   cv2.imwrite("output/"+file, image)
 
 
 
