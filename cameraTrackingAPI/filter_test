@@ -1,0 +1,34 @@
+# import function, variable, and classes from other modules  
+import numpy as np
+import cv2
+from ospery_diver import Camera, Display, Executor, tasks
+from ospery_diver.util import *
+import os, sys
+
+
+executor = Executor(cv2, np)   # The object that is responsible for executing different tasks (color detection, buoy detection, etc )
+
+
+images = []
+path = "images/"
+dirs = os.listdir(path)
+
+for file in dirs:
+   color = ORANGE
+
+   image = cv2.imread(path+file)
+   
+   buoyTask = executor.run(tasks.gateDetector, image, color, ['uwcorrect'])   # Execute the task. The executed task can be stored in variable  
+   buoyResult = buoyTask.result() 
+   filtered_image = buoyTask.getFilteredFrame()
+   cv2.imwrite("filtered/"+file, filtered_image)
+   buoyResult.drawOnFrame(image)
+   cv2.imwrite("output/"+file, image)
+
+
+
+
+
+
+
+
