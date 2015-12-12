@@ -7,8 +7,16 @@ from ospery_diver import UnsuccessfulTaskResult
 from ospery_diver import BuoyTaskResult
 
 class GateDetectorTask:
-    def __init__(self,cv2, np, image, color):
+    def __init__(self,cv2, np, image, color, filters=None):
         self.cv2 = cv2
+
+
+        if filters is not None:
+            for filter in filters:
+                print "Hello"
+                self.image = runFilterScript(filter, image)
+
+
         # The frame capture is in RGB (Red-Blue-Green)
         # It need to be in HSV (Hue Saturation and Value) in order for opencv to perform color detection
         hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -35,9 +43,14 @@ class GateDetectorTask:
 
             points = np.array(points)
             points = np.float32(points)
-            term_crit = (cv2.TERM_CRITERIA_EPS, 40, 0.1)
+            # Define criteria = ( type, max_iter = 10 , epsilon = 1.0 )
+            criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+             
+            # Set flags (Just to avoid line break in the code)
+            flags = cv2.KMEANS_RANDOM_CENTERS
 
-            ret, labels, centers = cv2.kmeans(points, 1, term_crit, 40, 0)
+            # Apply KMeans
+            compactness,labels,centers = cv2.kmeans(points,1,None,criteria,10,flags)
             self.coordinates = (int(centers[0,0]), int(centers[0,1]))
            
 
@@ -46,11 +59,22 @@ class GateDetectorTask:
             return UnsuccessfulTaskResult(self.cv2)
         return PointTaskResult(self.cv2, self.coordinates)
 
+    def getFilteredFrame(self):
+        return self.image
+
     def getThresholdFrame(self):
         return self.detected
 
 class FindBoundingRectsByColorTask:
-    def __init__(self, cv2, np, image, color):
+    def __init__(self, cv2, np, image, color, filters):
+
+
+        if filters is not None:
+            for filter in filters:
+                print "Hello"
+                self.image = runFilterScript(filter, image)
+
+        
         # The frame capture is in RGB (Red-Blue-Green)
         # It need to be in HSV (Hue Saturation and Value) in order for opencv to perform color detection
         hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -85,8 +109,14 @@ class FindBoundingRectsByColorTask:
         return self.detected
         
 class BuoyDetectorTask:
-    def __init__(self, cv2, np, image, color):
+    def __init__(self, cv2, np, image, color, filters):
         self.cv2 = cv2
+        self.image = image 
+
+        if filters is not None:
+            for filter in filters:
+                print "Hello"
+                self.image = runFilterScript(filter, image)
         
         # The frame capture is in RGB (Red-Blue-Green)
         # It need to be in HSV (Hue Saturation and Value) in order for opencv to perform color detection
@@ -110,13 +140,16 @@ class BuoyDetectorTask:
     def getThresholdFrame(self):
         return self.detected
 
-def gateDetector(cv2, np, image, color):
-    return GateDetectorTask(cv2, np, image, color)
+    def getFilteredFrame(self):
+        return self.image
 
-def findBoundingRectsByColor(cv2, np, image, color):
-    return FindBoundingRectsByColorTask(cv2, np, image, color)
+def gateDetector(cv2, np, image, color, filters=None):
+    return GateDetectorTask(cv2, np, image, color, filters)
+
+def findBoundingRectsByColor(cv2, np, image, color, filters=None):
+    return FindBoundingRectsByColorTask(cv2, np, image, color, filters)
     
-def buoyDetector(cv2, np, image, color):
-    return BuoyDetectorTask(cv2, np, image, color)
+def buoyDetector(cv2, np, image, color, filters=None):
+    return BuoyDetectorTask(cv2, np, image, color, filters)
 
 TASKS = [gateDetector, buoyDetector]
