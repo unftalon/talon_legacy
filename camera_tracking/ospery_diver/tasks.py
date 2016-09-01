@@ -7,8 +7,14 @@ from ospery_diver import UnsuccessfulTaskResult
 from ospery_diver import BuoyTaskResult
 
 class GateDetectorTask:
-    def __init__(self,cv2, np, image, color):
+    def __init__(self,cv2, np, image, color, filters):
         self.cv2 = cv2
+
+        # run through and apply each filter
+        for filter in filters:
+            image = filter(image)
+
+
         # The frame capture is in RGB (Red-Blue-Green)
         # It need to be in HSV (Hue Saturation and Value) in order for opencv to perform color detection
         hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -51,6 +57,11 @@ class GateDetectorTask:
 
 class FindBoundingRectsByColorTask:
     def __init__(self, cv2, np, image, color):
+
+        # run through and apply each filter
+        for filter in filters:
+            image = filter(image)
+
         # The frame capture is in RGB (Red-Blue-Green)
         # It need to be in HSV (Hue Saturation and Value) in order for opencv to perform color detection
         hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -85,7 +96,7 @@ class FindBoundingRectsByColorTask:
         return self.detected
         
 class BuoyDetectorTask:
-    def __init__(self, cv2, np, image, color):
+    def __init__(self, cv2, np, image, color, filters):
         self.cv2 = cv2
         
         # The frame capture is in RGB (Red-Blue-Green)
@@ -110,13 +121,13 @@ class BuoyDetectorTask:
     def getThresholdFrame(self):
         return self.detected
 
-def gateDetector(cv2, np, image, color):
-    return GateDetectorTask(cv2, np, image, color)
+def gateDetector(cv2, np, image, color, filters): 
+    return GateDetectorTask(cv2, np, image, color, filters)
 
-def findBoundingRectsByColor(cv2, np, image, color):
+def findBoundingRectsByColor(cv2, np, image, color, filters):
     return FindBoundingRectsByColorTask(cv2, np, image, color)
     
-def buoyDetector(cv2, np, image, color):
-    return BuoyDetectorTask(cv2, np, image, color)
+def buoyDetector(cv2, np, image, color, filters):
+    return BuoyDetectorTask(cv2, np, image, color, filters)
 
 TASKS = [gateDetector, buoyDetector]

@@ -7,6 +7,6 @@ class Executor:
         self.cv2 = cv2
         self.numpy = numpy
 
-    def run(self, task, image, color):
-        return task(self.cv2, self.numpy, image, color)
+    def run(self, task, image, color, filters = []):
+        return task(self.cv2, self.numpy, image, color, filters)
 

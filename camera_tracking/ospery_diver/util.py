@@ -3,6 +3,7 @@ import cv2
 import sys
 import Queue
 import threading
+import matlab.engine
 
 
 # openCV will only work with Numpy Arrays
@@ -33,6 +34,9 @@ KMEANS_ATTEMPTS = 10
 MIN_DIST = 1
 
 MARGIN_FROM_CENTER = 150
+
+# initiate matlab engine
+eng = matlab.engine.start_matlab()
 
 
 def getCenter(points):
@@ -156,4 +160,13 @@ def calibrate(queue, color):
             color[bound][channel] += (direction * INREMENT_VALUE)
             print color
 
+# filtering to correct red light attenuation
+def histogramStrenching(image):
 
+	# save to input.jpg which will be read by matlab
+	cv2.imwrite("input.jpg", image)
+
+	# call matlab function
+	eng.adjust()
+	
+	return cv2.imread("output.jpg")
