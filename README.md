@@ -1,4 +1,5 @@
 # RoboSub
+## this repository is here for archival purposes only. it is currently in the process of being converted to the main repository and modified for ROS.
 
 Welcome to the fun times at RoboSub! Visit us at [unfauv.org](http://unfauv.org)
 
