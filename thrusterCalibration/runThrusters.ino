@@ -1,20 +1,23 @@
 #include <Servo.h>
-
+//Intialize Servos
 Servo servo2;
 Servo servo3;
 Servo servo4;
 Servo servo5;
 Servo servo6;
 Servo servo7;
-
+//Group Servos int pairs
 Servo thrusterGroup1[] = { servo2, servo3 };
 Servo thrusterGroup2[] = { servo4, servo5 };
 Servo thrusterGroup3[] = { servo6, servo7 };
-
+//array of trusters for all the ones on the robot
 Servo allThrusters[] = { servo2, servo3, servo4, servo5, servo6, servo7 };
-
+//stop value for thrushtes
 int thrusterStop = 1500;
-
+//commands
+/*
+Enums are just constants with predefined values if not defined it gose from 0 to n-1. n being the # of values
+*/
 enum Commands {
   PAUSE             , // 0
   FORWARD           , // 1
@@ -26,15 +29,21 @@ enum Commands {
   BACKWARDSPEEDUP   , // 7
   BACKWARDSPEEDDOWN   // 8
 };
-
+//intialize ??
 int currentGroup1   = 0;
-int currentCommand1 = 0;
+int currentCommand1 = PAUSE;
 int currentGroup2   = 0;
-int currentCommand2 = 0;
+int currentCommand2 = PAUSE;
 int currentGroup3   = 0;
-int currentCommand3 = 0;
+int currentCommand3 = PAUSE;
 
-
+/*
+Thurster Value Range
+1500 +/- 30 is stop
+1900 - 1500 +/- 30 is forward
+1500 - 1100 +/- is backward
+*/
+//Is this values there because the singal was noisy
 int forwardValue1 = 1650;
 int backwardValue1 = 1425;
 
@@ -45,26 +54,59 @@ int forwardValue3 = 1550;
 int backwardValue3 = 1400;
 
 char buffer[512];
-int killSwitch = 0;
 
+int killSwitch = 0;
+//this pin is for toggling on/off the robot
 int starterPin = 28;
+
+void setup() {
+  //Sets USB Baud Rate - Serial Monitor must match
+  /*
+  Baud rate = rate in bits per second for communications
+  */
+  Serial.begin(9600);
+  //Set up the starter pin to read input from a signal
+  pinMode(starterPin, INPUT);
+  //while robot not enaged wait for commad after staterpin is turned on
+  while( digitalRead(starterPin) != HIGH ) {
+    Serial.println("waiting");
+  }
+  //after enaged tell computer over serial it is ready and set kill switch to waiting mode
+  Serial.println("starting..");
+  killSwitch = 1;
+  //wait 5 seconds
+  delay(5000);
+  //prepare the servos
+  setupServo(servo2, 2);
+  setupServo(servo3, 3);
+  setupServo(servo4, 4);
+  setupServo(servo5, 5);
+//  setupServo(servo6, 6);
+//  setupServo(servo7, 7);
+  Serial3.begin(9600);
+  Serial.begin(9600);
+  delay(2000);
+  
+}
   
 void loop() {
+  //check that starter is not off
   if(digitalRead(starterPin) == LOW) {
     killSwitch = 0;
     Serial.println("detected starterPin off");
   }
-
+  //if mismatch between killswitch starter reset robot
   if(digitalRead(starterPin) == HIGH && killSwitch == 0) {
     Serial.println("setting up again");
     setup();
   }
+  //straight bot in water for the gate
   straight();
 }
 
 void straight() {
+  //issues commands to a set robot
   commandGroup(1, 1750, 1750);
-  
   commandGroup(2, 1650,1650);
   delay(700);
   commandGroup(2, 1500,1500);
@@ -93,34 +135,10 @@ void setupRelay() {
   delay(2000);
 }
 
-void setup() {
-  Serial.begin(9600);
-
-  pinMode(starterPin, INPUT);
-
-  while( digitalRead(starterPin) != HIGH ) {
-    Serial.println("waiting");
-  }
-  Serial.println("starting..");
-  killSwitch = 1;
-  
-  delay(5000);
-
-  setupServo(servo2, 2);
-  setupServo(servo3, 3);
-  setupServo(servo4, 4);
-  setupServo(servo5, 5);
-//  setupServo(servo6, 6);
-//  setupServo(servo7, 7);
-  Serial3.begin(9600);
-  Serial.begin(9600);
-  delay(2000);
-  
-}
-
 void myLoop() {
 
   setSerial3Buffer(); // set buffer from user input
+  //What does 48 represent?
   Serial.println(buffer);
   currentGroup1 = buffer[0] - 48;
   currentCommand1 = buffer[2] - 48;
